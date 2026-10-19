@@ -1,0 +1,31 @@
+---
+import { tinaField } from '@tinacms/astro/tina-field';
+import type { CmsCategory } from '../../lib/data';
+
+interface Props {
+  category?: CmsCategory | null;
+  fallbackTitle?: string;
+}
+
+const { category = null, fallbackTitle = 'Category' } = Astro.props;
+const title = category?.title || fallbackTitle;
+---
+
+<header class="category-heading">
+  <div class="category-heading__inner">
+    <h1 data-tina-field={category ? tinaField(category, 'title') : undefined}>{title}</h1>
+    {category?.description && <p class="sr-only" data-tina-field={tinaField(category, 'description')}>{category.description}</p>}
+  </div>
+</header>
+
+<style>
+  .category-heading{padding:28px 32px 0;background:#fff;color:#0b0d10}
+  .category-heading__inner{max-width:1256px;margin:0 auto;padding:70px 72px;background:#f2f4f6;border-radius:32px}
+  h1{margin:0;font:800 clamp(48px,5vw,72px)/.98 var(--san,'Plus Jakarta Sans',sans-serif);letter-spacing:-.055em;color:#0b0d10}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  @media(max-width:700px){
+    .category-heading{padding:16px 16px 0}
+    .category-heading__inner{padding:32px;border-radius:22px}
+    h1{font-size:44px;line-height:1}
+  }
+</style>

@@ -1,0 +1,120 @@
+---
+import { tinaField } from '@tinacms/astro/tina-field';
+const { data = null } = Astro.props;
+const block = Array.isArray(data?.blocks) ? data.blocks[0] : data;
+const hero = block?.hero || {};
+const leadership = block?.leadership || {};
+const seniorStaff = block?.seniorStaff || {};
+const people = Array.isArray(leadership?.people) ? leadership.people : [];
+const staff = Array.isArray(seniorStaff?.people) ? seniorStaff.people : [];
+const accent = String(hero.headlineAccent || '').trim();
+const headline = String(hero.headline || '');
+const heroLead = accent && headline.endsWith(accent) ? headline.slice(0, -accent.length).trim() : headline;
+---
+<main class="ffn-demo ffn-demo-team team-page">
+  <header class="team-hero">
+    <div class="team-shell team-hero-panel">
+      <div class="team-pill" data-tina-field={tinaField(hero, 'eyebrow')}><i></i>{hero.eyebrow}</div>
+      <h1 data-tina-field={tinaField(hero, 'headline')}>{heroLead} {accent && <span>{accent}</span>}</h1>
+      <p data-tina-field={tinaField(hero, 'lede')}>{hero.lede}</p>
+    </div>
+  </header>
+
+  <section class="team-section leadership-section">
+    <div class="team-shell">
+      <div class="team-pill" data-tina-field={tinaField(leadership, 'eyebrow')}><i></i>{leadership.eyebrow}</div>
+      <h2 data-tina-field={tinaField(leadership, 'title')}>{leadership.title}</h2>
+      <div class="leader-list">
+        {people.map((person: any) => <article class="leader-card">
+          <img src={person.image} alt={person.imageAlt || person.name || ''} data-tina-field={tinaField(person, 'image')} />
+          <div class="leader-copy">
+            <div class="person-tags">
+              <span class="role" data-tina-field={tinaField(person, 'role')}>{person.role}</span>
+              <span class="location" data-tina-field={tinaField(person, 'location')}>{person.location}</span>
+            </div>
+            <h3 data-tina-field={tinaField(person, 'name')}>{person.name}</h3>
+            <p data-tina-field={tinaField(person, 'bio')}>{person.bio}</p>
+          </div>
+        </article>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="team-section staff-section">
+    <div class="team-shell">
+      <div class="team-pill" data-tina-field={tinaField(seniorStaff, 'eyebrow')}><i></i>{seniorStaff.eyebrow}</div>
+      <h2 data-tina-field={tinaField(seniorStaff, 'title')}>{seniorStaff.title}</h2>
+      <div class="staff-grid">
+        {staff.map((person: any) => <article class="staff-card">
+          <div class="staff-head">
+            <img src={person.image} alt={person.imageAlt || person.name || ''} data-tina-field={tinaField(person, 'image')} />
+            <div>
+              <h3 data-tina-field={tinaField(person, 'name')}>{person.name}</h3>
+              <div class="staff-meta">
+                <b data-tina-field={tinaField(person, 'role')}>{person.role}</b>
+                <span data-tina-field={tinaField(person, 'location')}>{person.location}</span>
+              </div>
+            </div>
+          </div>
+          <p data-tina-field={tinaField(person, 'bio')}>{person.bio}</p>
+        </article>)}
+      </div>
+    </div>
+  </section>
+</main>
+
+<style>
+  .team-page{--team-shell:1256px;color:#101216!important;background:#fff!important}
+  .team-shell{width:min(var(--team-shell),calc(100% - 64px));margin-inline:auto}
+  .team-hero{padding:24px 0 0!important;background:#fff!important}
+  .team-hero-panel{box-sizing:border-box;background:#f2f3f5;border-radius:30px;padding:72px!important}
+  .team-pill{display:inline-flex;align-items:center;gap:8px;background:#f1f8dc;color:#486b0b;border-radius:999px;padding:7px 13px;font:800 12px/1 var(--san);letter-spacing:.07em;text-transform:uppercase}
+  .team-pill i{display:block;width:7px;height:7px;border-radius:50%;background:#5b850b}
+  .team-hero h1{max-width:950px!important;margin:28px 0 22px!important;font:800 clamp(58px,6vw,82px)/.95 var(--san)!important;letter-spacing:-.06em!important;color:#0b0d10!important}
+  .team-hero h1 span{color:#4f7a00!important}
+  .team-hero p{max-width:960px;margin:0!important;color:#343b43!important;font:400 16px/1.65 var(--san)!important}
+  .team-section{padding:96px 0 0!important;background:#fff!important}
+  .team-section h2{margin:16px 0 34px!important;color:#0b0d10!important;font:800 42px/1.05 var(--san)!important;letter-spacing:-.045em!important}
+  .leader-list{display:grid;gap:20px}
+  .leader-card{display:grid;grid-template-columns:42% 58%;min-height:438px;overflow:hidden;border-radius:28px;background:#f1f2f4}
+  .leader-card>img{display:block;width:100%;height:100%;min-height:438px;object-fit:cover}
+  .leader-copy{display:flex;flex-direction:column;justify-content:center;padding:48px 56px}
+  .person-tags{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-bottom:16px}
+  .person-tags span{display:inline-flex;border-radius:999px;padding:7px 12px;font:700 11px/1 var(--san)}
+  .person-tags .role{background:#c6f432;color:#101216;text-transform:uppercase;letter-spacing:.04em}
+  .person-tags .location{background:#fff;color:#4f5966}
+  .leader-copy h3,.staff-card h3{margin:0!important;color:#0b0d10!important;font:800 40px/1 var(--san)!important;letter-spacing:-.045em!important}
+  .leader-copy p{margin:14px 0 0!important;color:#525c67!important;font:400 15px/1.72 var(--san)!important}
+  .staff-section{padding-bottom:104px!important}
+  .staff-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+  .staff-card{border:1px solid #d9dde1;border-radius:25px;padding:30px;background:#fff}
+  .staff-head{display:flex;align-items:center;gap:20px}
+  .staff-head img{flex:0 0 88px;width:88px;height:88px;border-radius:50%;object-fit:cover}
+  .staff-card h3{font-size:27px!important}
+  .staff-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:5px;font:400 14px/1.3 var(--san);color:#68717b}
+  .staff-meta b{color:#4f7a00}
+  .staff-card>p{margin:24px 0 0!important;color:#525c67!important;font:400 15px/1.72 var(--san)!important}
+  @media(max-width:1023px){
+    .team-shell{width:calc(100% - 32px)}
+    .team-hero{padding-top:16px!important}
+    .team-hero-panel{padding:34px 32px!important;border-radius:24px}
+    .team-hero h1{margin:24px 0 20px!important;font-size:47px!important;line-height:.91!important;max-width:290px!important}
+    .team-hero p{font-size:17px!important;line-height:1.72!important}
+    .team-section{padding-top:64px!important}
+    .team-section h2{font-size:31px!important;margin:16px 0 28px!important}
+    .leader-list{gap:22px}
+    .leader-card{display:block;min-height:0;border-radius:24px}
+    .leader-card>img{height:auto;min-height:0;aspect-ratio:1.12;object-position:center;}
+    .leader-copy{padding:28px}
+    .leader-copy h3{font-size:34px!important}
+    .leader-copy p{font-size:17px!important;line-height:1.78!important}
+    .staff-grid{grid-template-columns:1fr;gap:20px}
+    .staff-card{padding:23px;border-radius:25px}
+    .staff-head{gap:16px;align-items:flex-start}
+    .staff-head img{flex-basis:72px;width:72px;height:72px}
+    .staff-card h3{font-size:25px!important}
+    .staff-meta{font-size:14px;gap:5px 10px}
+    .staff-card>p{font-size:17px!important;line-height:1.77!important;margin-top:24px!important}
+    .staff-section{padding-bottom:48px!important}
+  }
+</style>

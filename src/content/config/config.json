@@ -1,0 +1,72 @@
+{
+  "headerNavigation": "src/content/navigation/header.json",
+  "footerNavigation": "src/content/navigation/footer.json",
+  "favicon": "https://res.cloudinary.com/kfgnsmek/image/upload/v1792437768/home/favicon.svg",
+  "seo": {
+    "title": "Herald News Today",
+    "description": "Independent reporting and useful context from New Orleans and beyond.",
+    "siteOwner": "Joseph Baldwin",
+    "logo": "https://res.cloudinary.com/kfgnsmek/image/upload/v1792439996/home/herald-news-today-logo-exact.png",
+    "favicon": "https://res.cloudinary.com/kfgnsmek/image/upload/v1792437768/home/favicon.svg",
+    "footerLogo": "https://res.cloudinary.com/kfgnsmek/image/upload/v1792439996/home/herald-news-today-logo-exact.png"
+  },
+  "contactForm": {
+    "formspreeEndpoint": "https://formspree.io/f/xyekadkd",
+    "heading": "Send us a message",
+    "description": "Share a news tip, correction, question, or business inquiry with Herald News Today.",
+    "buttonText": "Send Message",
+    "note": "Please do not include confidential or sensitive personal information.",
+    "subject": "Herald News Today contact form submission"
+  },
+  "footer": {
+    "copyright": "\u00a9 {year} {site}. All rights reserved.",
+    "legalLinks": [
+      {
+        "label": "Privacy",
+        "href": "/privacy-policy/"
+      },
+      {
+        "label": "Terms",
+        "href": "/terms-of-use/"
+      },
+      {
+        "label": "Cookie",
+        "href": "/cookie-policy/"
+      },
+      {
+        "label": "AI",
+        "href": "/ai-policy/"
+      },
+      {
+        "label": "DMCA",
+        "href": "/dmca-policy/"
+      },
+      {
+        "label": "Sponsored",
+        "href": "/sponsored-content-policy/"
+      },
+      {
+        "label": "Sitemap",
+        "href": "/sitemap/"
+      }
+    ],
+    "ctaEyebrow": "Write for us",
+    "ctaTitle": "Have a story worth telling?",
+    "ctaText": "We welcome reported features, analysis, and first-person essays from writers with real expertise and a fresh angle.",
+    "ctaButtonText": "Pitch the editors",
+    "ctaButtonHref": "/write-for-us/"
+  },
+  "codeInjection": {
+    "headerCode": "",
+    "footerCode": ""
+  },
+  "contactLinks": [],
+  "footerStarfield": false,
+  "notFound": {
+    "eyebrow": "Page not found",
+    "title": "Page not found",
+    "description": "The page you are looking for may have moved, been renamed, or no longer exists. Head back to the homepage to keep reading.",
+    "buttonText": "Back to homepage",
+    "buttonHref": "/"
+  }
+}

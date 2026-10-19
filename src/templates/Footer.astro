@@ -1,0 +1,65 @@
+---
+import { tinaField } from "@tinacms/astro/tina-field";
+import type { CmsConfig } from '../lib/data';
+
+type NavItem = {
+  label?: string | null;
+  href?: string | null;
+};
+
+type NavigationDocument = {
+  title?: string | null;
+  items?: (NavItem | null)[] | null;
+};
+
+interface Props {
+  config?: CmsConfig | null;
+  navigation?: NavigationDocument | null;
+}
+
+const { config, navigation } = Astro.props;
+const currentYear = new Date().getFullYear();
+const seo = config?.seo ?? null;
+const siteTitle = seo?.title || 'Herald News Today';
+// Footer Logo must drive the footer when set; fall back to the main Logo and
+// then to the configured site title so a migrated site never inherits a logo.
+const footerLogo = seo?.footerLogo || seo?.logo || '';
+const footerMenuItems = ((navigation?.items ?? []) as NavItem[]).filter((item) => item && item.label && item.href);
+const footer = (config as any)?.footer ?? {};
+const fineLinks = (Array.isArray(footer.legalLinks) ? footer.legalLinks : []).filter((item: any) => item?.label && item?.href);
+const copyright = String(footer.copyright || '').replaceAll('{year}', String(currentYear)).replaceAll('{site}', siteTitle);
+const ctaWords = String(footer.ctaTitle || '').trim().split(/\s+/);
+const ctaAccent = ctaWords.pop() || '';
+const ctaLead = ctaWords.join(' ');
+---
+
+<footer class="ft" data-brand-footer>
+  {footer.ctaTitle && <div class="w ft-pitch-wrap"><section class="ft-pitch">
+    <div><span class="ft-pitch-eye" data-tina-field={tinaField(footer, 'ctaEyebrow')}>{footer.ctaEyebrow}</span><h2 data-tina-field={tinaField(footer, 'ctaTitle')}>{ctaLead} <span>{ctaAccent}</span></h2><p data-tina-field={tinaField(footer, 'ctaText')}>{footer.ctaText}</p></div>
+    <a href={footer.ctaButtonHref || '/contact/'} data-tina-field={tinaField(footer, 'ctaButtonText')}>{footer.ctaButtonText} →</a>
+  </section></div>}
+  <div class="w">
+    <div class="ft-cl">
+      {footerLogo ? (
+        <img src={footerLogo} alt={siteTitle} data-tina-field={seo ? tinaField(seo, 'footerLogo') : undefined} loading="lazy" decoding="async" />
+      ) : (
+        <a class="ft-wordmark" href="/" aria-label={`${siteTitle} home`}>{siteTitle}</a>
+      )}
+      <nav class="ft-links" aria-label={navigation?.title || 'Footer menu'}>
+        {footerMenuItems.map((item) => (
+          <a href={item.href || '#'} data-tina-field={tinaField(item, 'label')}>{item.label}</a>
+        ))}
+      </nav>
+    </div>
+  </div>
+  <div class="w">
+    <div class="ft-lg">
+      <p data-tina-field={tinaField(footer, 'copyright')}>{copyright}</p>
+      <nav class="ft-fine" aria-label="Footer legal links">
+        {fineLinks.map((item) => (
+          <a href={item.href} data-tina-field={tinaField(item, 'label')}>{item.label}</a>
+        ))}
+      </nav>
+    </div>
+  </div>
+</footer>

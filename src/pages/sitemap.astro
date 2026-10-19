@@ -1,0 +1,182 @@
+---
+import Base from '../layouts/Base.astro';
+import { getConfig, listBlogs, listPages } from '../lib/data';
+import { getBlogPermalink, getPageRouteSlug } from '../lib/permalinks';
+
+export const prerender = false;
+
+const pages = await listPages();
+const posts = await listBlogs();
+const config = (await getConfig()).data?.config ?? null;
+const siteName = config?.name || '';
+
+const title = `Sitemap | ${siteName}`;
+const description = `Browse the public pages and latest reporting published by ${siteName}.`;
+
+function cleanTitle(value: unknown, fallback = 'Untitled') {
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
+function withTrailingSlash(value: string) {
+  if (!value || value === '/') return '/';
+  const normalized = value.startsWith('/') ? value : '/' + value;
+  return normalized.endsWith('/') ? normalized : normalized + '/';
+}
+
+function pageUrl(page: any) {
+  const filename = page?._sys?.filename || '';
+  if (filename === 'home') return '/';
+  return withTrailingSlash(getPageRouteSlug(page) || filename);
+}
+
+function postUrl(post: any) {
+  return withTrailingSlash(getBlogPermalink(post));
+}
+
+function isHiddenPage(page: any) {
+  const filename = page?._sys?.filename || '';
+  const url = pageUrl(page);
+  return Boolean(
+    page?.draft ||
+    page?.seo?.noindex ||
+    filename === '404' ||
+    filename === 'sitemap' ||
+    url === '/sitemap/'
+  );
+}
+
+function isHiddenPost(post: any) {
+  return Boolean(post?.draft || post?.seo?.noindex);
+}
+
+type SitemapLink = { title: string; url: string };
+type SitemapPostLink = SitemapLink & { date: Date | null };
+
+const pageLinks: SitemapLink[] = (pages as any[])
+  .filter((page: any) => !isHiddenPage(page))
+  .map((page: any): SitemapLink => ({
+    title: cleanTitle(page.title || page.seoTitle || page.seo?.metaTitle, page?._sys?.filename || 'Page'),
+    url: pageUrl(page),
+  }))
+  .sort((a: SitemapLink, b: SitemapLink) => {
+    if (a.url === '/') return -1;
+    if (b.url === '/') return 1;
+    return a.title.localeCompare(b.title);
+  });
+
+const postLinks: SitemapPostLink[] = (posts as any[])
+  .filter((post: any) => !isHiddenPost(post))
+  .map((post: any): SitemapPostLink => ({
+    title: cleanTitle(post.title || post.seo?.metaTitle, post?._sys?.filename || 'Story'),
+    url: postUrl(post),
+    date: post.pubDate ? new Date(post.pubDate) : null,
+  }))
+  .sort((a: SitemapPostLink, b: SitemapPostLink) => Number(b.date || 0) - Number(a.date || 0));
+
+---
+
+<Base
+  title={title}
+  description={description}
+  ogTitle={title}
+  ogDescription={description}
+  canonicalUrl="/sitemap/"
+>
+  <main class="ffn-demo ffn-demo-sitemap" aria-labelledby="sitemap-title">
+    <header class="ph sitemap-simple-hero"><div class="w"><div class="ph-in"><h1 id="sitemap-title">Sitemap</h1></div></div></header>
+    <section class="sitemap-simple"><div class="w sitemap-simple-grid">
+      <section class="sitemap-simple-col" aria-labelledby="sitemap-pages-title"><h2 id="sitemap-pages-title">Pages</h2>
+        {pageLinks.length > 0 ? <ul>{pageLinks.map((item: SitemapLink) => <li><a href={item.url}><span>{item.title}</span><b aria-hidden="true">→</b></a></li>)}</ul> : <p>No public pages found.</p>}
+      </section>
+      <section class="sitemap-simple-col" aria-labelledby="sitemap-posts-title"><h2 id="sitemap-posts-title">Posts</h2>
+        {postLinks.length > 0 ? <ul>{postLinks.map((item: SitemapPostLink) => <li><a href={item.url}><span>{item.title}</span><b aria-hidden="true">→</b></a></li>)}</ul> : <p>No published stories found.</p>}
+      </section>
+    </div></section>
+  </main>
+</Base>
+
+<style>
+  .ffn-demo-sitemap .sitemap-simple-hero {
+    padding: 28px 0 !important;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple-hero > .w {
+    max-width: 1256px !important;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple-hero .ph-in {
+    padding: 84px 72px !important;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple-hero h1 {
+    font-size: 68px !important;
+    line-height: .96 !important;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple {
+    padding: 66px 0 0 !important;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple-grid {
+    max-width: 1256px !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 84px;
+    padding: 0 !important;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple-col h2 {
+    margin: 0 0 20px;
+    font-size: 28px;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple-col a {
+    padding: 16px 0;
+    color: #1f252d;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple-col a span {
+    color: inherit;
+    font-size: inherit;
+  }
+
+  .ffn-demo-sitemap .sitemap-simple-col a b {
+    color: #4f7a00;
+    font-weight: 500;
+  }
+
+  @media (max-width: 1023px) {
+    .ffn-demo-sitemap .sitemap-simple-hero {
+      padding: 16px !important;
+    }
+
+    .ffn-demo-sitemap .sitemap-simple-hero .ph-in {
+      padding: 32px !important;
+    }
+
+    .ffn-demo-sitemap .sitemap-simple-hero h1 {
+      font-size: 42px !important;
+    }
+
+    .ffn-demo-sitemap .sitemap-simple {
+      padding: 40px 16px 0 !important;
+    }
+
+    .ffn-demo-sitemap .sitemap-simple-grid {
+      grid-template-columns: 1fr;
+      gap: 47px;
+    }
+
+    .ffn-demo-sitemap .sitemap-simple-col h2 {
+      margin-bottom: 12px;
+      font-size: 26px;
+    }
+
+    .ffn-demo-sitemap .sitemap-simple-col a {
+      min-height: 60px;
+      padding: 14px 0;
+      font-size: 18px;
+    }
+  }
+</style>

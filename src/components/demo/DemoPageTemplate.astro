@@ -1,0 +1,146 @@
+---
+import TinaMarkdown from '@tinacms/astro/TinaMarkdown.astro';
+import { tinaField } from '@tinacms/astro/tina-field';
+
+const { data } = Astro.props;
+const contentBlock = Array.isArray(data?.blocks)
+  ? data.blocks.find((block: any) => block?.__typename === 'PageBlocksContent' || block?._template === 'content')
+  : null;
+const title = data?.title || data?.seoTitle || 'Editorial Guidelines';
+function inlineMarkdown(value: string) {
+  return value
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g, '<a href="$2">$1</a>');
+}
+function renderMarkdown(value: string) {
+  const blocks = value.trim().split(/\n\s*\n/);
+  return blocks.map((block) => {
+    const text = block.trim();
+    if (text.startsWith('### ')) return `<h3>${inlineMarkdown(text.slice(4))}</h3>`;
+    if (text.startsWith('## ')) return `<h2>${inlineMarkdown(text.slice(3))}</h2>`;
+    if (text.startsWith('# ')) return `<h1>${inlineMarkdown(text.slice(2))}</h1>`;
+    if (text.split('\n').every((line) => /^[-*]\s+/.test(line))) return `<ul>${text.split('\n').map((line) => `<li>${inlineMarkdown(line.replace(/^[-*]\s+/, ''))}</li>`).join('')}</ul>`;
+    return `<p>${inlineMarkdown(text).replace(/\n/g, '<br />')}</p>`;
+  }).join('');
+}
+const stringBodyHtml = typeof contentBlock?.body === 'string' ? renderMarkdown(contentBlock.body) : '';
+---
+
+<main class="ffn-demo ffn-demo-page-template">
+  <header class="pt"><div class="w">
+    <h1 data-tina-field={data ? tinaField(data, 'title') : undefined}>{title}</h1>
+  </div></header>
+  <div class="pg"><div class="w">
+    <article data-tina-field={contentBlock ? tinaField(contentBlock, 'body') : undefined}>
+      {typeof contentBlock?.body === 'string' ? (
+        <div set:html={stringBodyHtml} />
+      ) : contentBlock?.body ? (
+        <TinaMarkdown content={contentBlock.body} />
+      ) : (
+        <>
+          <p>This page is the content slot. Everything below is written as plain markdown or rich text — no classes are applied to any element, and the styling comes from the template.</p>
+          <h2>A second-level heading</h2>
+          <p>Body copy runs at nineteen pixels with generous leading. The opening paragraph is set slightly larger and darker so the page has an entry point, and that treatment applies only to the first paragraph.</p>
+          <p>Links inside prose, such as <a href="/contact/">this one</a>, take the darker orange so they clear contrast against white.</p>
+          <h3>A third-level heading</h3>
+          <ul>
+            <li>Unordered items take an orange square marker and a hairline rule.</li>
+            <li>The rules run between items, with one above the first.</li>
+            <li>Nothing here carries a class attribute.</li>
+          </ul>
+          <blockquote><p>Pull quotes sit on a black slab in the display face.</p><cite>Attribution line</cite></blockquote>
+        </>
+      )}
+    </article>
+  </div></div>
+</main>
+
+<style>
+  .ffn-demo-page-template .pt {
+    padding: 28px 0 !important;
+  }
+
+  .ffn-demo-page-template .pt > .w {
+    max-width: 1256px !important;
+    padding: 84px 72px !important;
+  }
+
+  .ffn-demo-page-template .pt h1 {
+    margin: 0 !important;
+    font-size: 68px !important;
+    line-height: .96 !important;
+  }
+
+  .ffn-demo-page-template .pg {
+    padding: 66px 0 0 !important;
+  }
+
+  .ffn-demo-page-template .pg > .w {
+    max-width: 1256px !important;
+    padding: 0 !important;
+  }
+
+  .ffn-demo-page-template .pg article,
+  .ffn-demo-page-template .pg article :global(p),
+  .ffn-demo-page-template .pg article :global(li) {
+    max-width: none !important;
+    color: #1f252d !important;
+    font-size: 18px !important;
+    line-height: 1.72 !important;
+  }
+
+  .ffn-demo-page-template .pg article :global(p) {
+    margin: 0 0 26px !important;
+  }
+
+  .ffn-demo-page-template .pg article :global(h2) {
+    margin: 37px 0 12px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #0b0d10 !important;
+    font-size: 24px !important;
+    line-height: 1.2 !important;
+    letter-spacing: -.025em !important;
+  }
+
+  @media (max-width: 1023px) {
+    .ffn-demo-page-template .pt {
+      padding: 16px !important;
+    }
+
+    .ffn-demo-page-template .pt > .w {
+      padding: 32px !important;
+    }
+
+    .ffn-demo-page-template .pt h1 {
+      font-size: 42px !important;
+      line-height: .98 !important;
+    }
+
+    .ffn-demo-page-template .pg {
+      padding: 43px 16px 0 !important;
+    }
+
+    .ffn-demo-page-template .pg > .w {
+      padding: 0 !important;
+    }
+
+    .ffn-demo-page-template .pg article,
+    .ffn-demo-page-template .pg article :global(p),
+    .ffn-demo-page-template .pg article :global(li) {
+      font-size: 18px !important;
+      line-height: 1.75 !important;
+    }
+
+    .ffn-demo-page-template .pg article :global(p) {
+      margin-bottom: 28px !important;
+    }
+
+    .ffn-demo-page-template .pg article :global(h2) {
+      margin: 40px 0 14px !important;
+      font-size: 26px !important;
+      line-height: 1.18 !important;
+    }
+  }
+</style>

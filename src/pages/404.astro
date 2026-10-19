@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import Demo404 from '../components/demo/Demo404.astro';
+import { getConfig } from '../lib/data';
+import localConfig from '../content/config/config.json';
+
+const config = (await getConfig()).data.config;
+const liveNotFound = Object.fromEntries(Object.entries(config?.notFound || {}).filter(([, value]) => value !== null && value !== undefined));
+const page = { ...localConfig.notFound, ...liveNotFound };
+const title = `${page.title || 'Page not found'} | ${config?.seo?.title || 'Herald News Today'}`;
+const description = page.description || config?.seo?.description || '';
+---
+
+<Base title={title} description={description} noindex={true}>
+  <Demo404 data={page} />
+</Base>

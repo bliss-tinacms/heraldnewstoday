@@ -1,0 +1,331 @@
+---
+import { statSync } from 'node:fs';
+import { join } from 'node:path';
+import { getBlogPermalink } from '../../lib/permalinks';
+import TinaMarkdown from '@tinacms/astro/TinaMarkdown.astro';
+import { tinaField } from '@tinacms/astro/tina-field';
+import type { CmsBlog } from '../../lib/data';
+import FormattedDate from '../FormattedDate.astro';
+import { mdxComponents } from '../mdx/components';
+
+interface Props {
+	data?: CmsBlog | null;
+	relatedPosts?: CmsBlog[];
+}
+
+const { data, relatedPosts = [] } = Astro.props;
+
+type ReferenceObject = {
+	title?: string | null;
+	name?: string | null;
+	_sys?: { filename?: string | null } | null;
+};
+
+type AuthorObject = ReferenceObject & {
+	role?: string | null;
+	avatar?: string | null;
+	bio?: string | null;
+	email?: string | null;
+};
+
+type RichNode = {
+	type?: string;
+	text?: string;
+	children?: RichNode[];
+	[key: string]: unknown;
+};
+
+function getReferenceItems(reference: unknown): unknown[] {
+	return Array.isArray(reference) ? reference.filter(Boolean) : reference ? [reference] : [];
+}
+
+function getSingleReferenceLabel(reference: unknown) {
+	if (!reference) return null;
+	if (typeof reference === 'string') {
+		return reference.split('/').pop()?.replace(/\.(json|mdx?)$/, '').replace(/-/g, ' ') ?? null;
+	}
+	if (typeof reference === 'object') {
+		const item = reference as ReferenceObject;
+		return String(item.title ?? item.name ?? '') || null;
+	}
+	return null;
+}
+
+function getReferenceLabel(reference: unknown) {
+	const labels = getReferenceItems(reference).map(getSingleReferenceLabel).filter(Boolean) as string[];
+	return labels.length ? labels.join(', ') : null;
+}
+
+function getReferenceSlug(reference: unknown) {
+	const first = getReferenceItems(reference)[0];
+	if (!first) return null;
+	if (typeof first === 'string') {
+		return first.split('/').pop()?.replace(/\.(json|mdx?)$/, '') || null;
+	}
+	if (typeof first === 'object') {
+		const item = first as ReferenceObject;
+		return item._sys?.filename || (item.title || item.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || null;
+	}
+	return null;
+}
+
+function getPostCategories(post?: Partial<CmsBlog> | null): unknown[] {
+	const categories = (post as any)?.categories;
+	if (Array.isArray(categories) && categories.length) {
+		return categories.map((item) => typeof item === 'object' && item && 'category' in item ? item.category : item).filter(Boolean);
+	}
+	return (post as any)?.category ? [(post as any).category] : [];
+}
+
+function getAuthor(reference: unknown) {
+	if (!reference || typeof reference !== 'object') return null;
+	return reference as AuthorObject;
+}
+
+function getPostUrl(post: CmsBlog) {
+	return getBlogPermalink(post);
+}
+
+function getPostTitle(post: CmsBlog) {
+	return post.title || 'Untitled story';
+}
+
+function getPostDescription(post: CmsBlog) {
+	return post.description || 'Read the full report.';
+}
+
+function getText(node: unknown): string {
+	if (!node || typeof node !== 'object') return '';
+	const item = node as RichNode;
+	if (typeof item.text === 'string') return item.text;
+	return Array.isArray(item.children) ? item.children.map(getText).join('') : '';
+}
+
+function slugify(value: string) {
+	return value
+		.toLowerCase()
+		.replace(/&/g, ' and ')
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '') || 'section';
+}
+
+function getTocItems(body: unknown) {
+	if (!body || typeof body !== 'object') return [];
+	const root = body as RichNode;
+	const counts = new Map<string, number>();
+	return (root.children || [])
+		.filter((node) => node?.type === 'h2')
+		.map((node) => {
+			const title = getText(node).trim();
+			if (!title) return null;
+			const base = slugify(title);
+			const count = counts.get(base) || 0;
+			counts.set(base, count + 1);
+			return { title, id: count ? `${base}-${count + 1}` : base };
+		})
+		.filter(Boolean) as Array<{ title: string; id: string }>;
+}
+
+function getFallbackPublishedDate(post?: CmsBlog | null) {
+	if (!post?._sys?.filename) return new Date();
+	try {
+		const stat = statSync(join(process.cwd(), 'src', 'content', 'blog', `${post._sys.filename}.mdx`));
+		return stat.mtime;
+	} catch (_error) {
+		return new Date();
+	}
+}
+
+const postAuthor = data ? getAuthor(data.author) : null;
+const author = postAuthor;
+const authorName = getReferenceLabel(postAuthor) || getReferenceLabel(data?.author) || 'Site Staff';
+const authorSlug = getReferenceSlug(data?.author) || getReferenceSlug(author);
+const authorArchiveUrl = authorSlug ? `/author/${authorSlug}/` : '/blog/';
+const authorInitials = authorName.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || 'SS';
+const categoryItems = getPostCategories(data).map((reference) => ({ label: getSingleReferenceLabel(reference), slug: getReferenceSlug(reference) })).filter((item) => item.label && item.slug) as Array<{ label: string; slug: string }>;
+const categoryLabel = categoryItems[0]?.label || '';
+const publishedDate = data?.pubDate ? new Date(data.pubDate) : getFallbackPublishedDate(data);
+const shareUrl = data ? getPostUrl(data) : '/blog/';
+
+const tocItems = getTocItems(data?.body);
+const hasToc = tocItems.length > 0;
+
+const heroImageAlt = (() => {
+  const sources = [];
+  if (typeof data !== 'undefined' && data) sources.push(data);
+  for (const item of sources) {
+    const value = item?.heroImageAlt || item?.featuredImageAlt || item?.imageAlt || item?.coverImageAlt || item?.thumbnailAlt;
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  for (const item of sources) {
+    const value = item?.title;
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return 'Article lead image';
+})();
+---
+
+{data && (
+	<>
+		<header class="ah">
+			<div class="w">
+				<div class="ah-in">
+					{categoryLabel && (
+						<div class="category-badges">
+							{categoryItems.map((item) => <a data-article-category data-category-slug={item.slug.toLowerCase()} href={`/${item.slug.toLowerCase()}/`}>{item.label}</a>)}
+						</div>
+					)}
+					{data.title && <h1 data-tina-field={tinaField(data, 'title')}>{data.title}</h1>}
+					<div class="ah-by">
+						<a href={authorArchiveUrl} aria-label={`View ${authorName} archive`}>
+							{author?.avatar ? (
+								<img src={author.avatar} alt={authorName} width={52} height={52} class="ah-av" />
+							) : (
+								<span class="ah-av post-author-box__placeholder" aria-hidden="true">{authorInitials}</span>
+							)}
+						</a>
+						<div class="ah-au" data-tina-field={tinaField(data, 'author')}>
+							<div class="ah-an"><a href={authorArchiveUrl}>{authorName}</a></div>
+							{author?.role && <div class="ah-ar">{author.role}</div>}
+						</div>
+						<div class="ah-dt">
+							{publishedDate && <span data-tina-field={tinaField(data, 'pubDate')}><FormattedDate date={publishedDate} /></span>}
+							{data.updatedDate && <><br /><span data-tina-field={tinaField(data, 'updatedDate')}>Updated <FormattedDate date={new Date(data.updatedDate)} /></span></>}
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<section class="bd">
+			<div class="w bd-in">
+				{data.heroImage && (
+					<figure data-tina-field={tinaField(data, 'heroImage')} class="li">
+						<img width={1020} height={574} src={data.heroImage} alt={heroImageAlt} />
+					</figure>
+				)}
+
+				<aside class="rl" aria-label="Article tools">
+					{hasToc && (
+						<div class="rc toc">
+							<div class="rc-t">Table of Content</div>
+							<div class="rc-b">
+								{tocItems.map((item, index) => (
+									<a class="tc" href={`#${item.id}`}>
+										<span class="tc-n">{String(index + 1).padStart(2, '0')}</span>
+										<span class="tc-h">{item.title}</span>
+									</a>
+								))}
+							</div>
+						</div>
+					)}
+					<a href="/about/" class="standards-card">
+						<span>Our standards</span>
+						<strong>How we report</strong>
+						{data.description && <p>{data.description}</p>}
+						<b>Read our editorial guidelines ↗</b>
+					</a>
+				</aside>
+
+				<article id="article-body" class="pr" data-toc-ids={JSON.stringify(tocItems.map((item) => item.id))}>
+					{data.body && (
+						<div data-tina-field={tinaField(data, 'body')}>
+							{typeof data.body === 'string' ? <p>{data.body}</p> : <TinaMarkdown content={data.body} components={mdxComponents} />}
+						</div>
+					)}
+
+					<section id="about-author" data-tina-field={tinaField(data, 'author')} class="corr" aria-labelledby="post-author-heading">
+						{author?.avatar ? <img src={author.avatar} alt={authorName} /> : <span class="corr-avatar">{authorInitials}</span>}
+						<div class="corr-b">
+							<span>About the author</span>
+							<strong id="post-author-heading"><a href={authorArchiveUrl}>{authorName}</a></strong>
+							{author?.bio && <p>{author.bio}</p>}
+						</div>
+					</section>
+				</article>
+			</div>
+		</section>
+		<script is:inline>
+			(() => {
+				const article = document.currentScript?.previousElementSibling?.querySelector?.('.pr') || document.querySelector('.pr[data-toc-ids]');
+				if (article) {
+					let ids = [];
+					try { ids = JSON.parse(article.getAttribute('data-toc-ids') || '[]'); } catch (_) {}
+					article.querySelectorAll('h2').forEach((heading, index) => {
+						if (ids[index] && !heading.id) heading.id = ids[index];
+					});
+				}
+
+				const copyLink = document.querySelector('[data-copy-link]');
+				if (copyLink) {
+					copyLink.addEventListener('click', async (event) => {
+						event.preventDefault();
+						const url = document.querySelector('link[rel="canonical"]')?.href || new URL(window.location.pathname, window.location.origin).toString();
+						try {
+							await navigator.clipboard.writeText(url);
+						} catch (_) {
+							const input = document.createElement('input');
+							input.value = url;
+							input.setAttribute('readonly', '');
+							document.body.appendChild(input);
+							input.select();
+							document.execCommand('copy');
+							input.remove();
+						}
+						const label = copyLink.querySelector('span');
+						if (label) {
+							const previous = label.textContent;
+							label.textContent = 'Copied';
+							window.setTimeout(() => { label.textContent = previous || 'Copy Link'; }, 1600);
+						}
+					});
+				}
+			})();
+		</script>
+	</>
+)}
+
+{data && relatedPosts.length > 0 && (
+	<section id="more-stories" class="mo" aria-labelledby="related-articles-heading">
+		<div class="w">
+			<div class="h2" id="related-articles-heading">Keep reading</div>
+			<div class="mo-g">
+				{relatedPosts.slice(0, 3).map((post) => (
+					<a href={getPostUrl(post)} class="mi">
+						{post.heroImage && <img src={post.heroImage} alt={post.heroImageAlt || post.title || ''} class="mi-img" width={420} height={262} />}
+						<div class="mi-c">
+							<div class="mi-k category-badges">{(getPostCategories(post).map(getSingleReferenceLabel).filter(Boolean) as string[]).map((label) => <span>{label}</span>)}</div>
+							<div class="mi-h">{getPostTitle(post)}</div>
+						</div>
+					</a>
+				))}
+			</div>
+		</div>
+	</section>
+)}
+
+<style>
+  .ah{padding:28px 32px 0;background:#fff;color:#0b0d10}
+  .ah>.w{max-width:1256px;padding:0;margin:0 auto;background:#f2f4f6;border-radius:32px}
+  .ah-in{padding:68px 72px}
+  .category-badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+  .category-badges a,.category-badges span{display:inline-flex;padding:7px 13px;border-radius:999px;background:#c6f432;color:#0b0d10;font:800 11px/1 var(--san,'Plus Jakarta Sans',sans-serif);letter-spacing:.05em;text-transform:uppercase;text-decoration:none}
+  .ah h1{max-width:1080px;margin:0 0 28px;color:#0b0d10;font:800 clamp(48px,5.3vw,76px)/1 var(--san,'Plus Jakarta Sans',sans-serif);letter-spacing:-.055em;text-transform:none}
+  .ah-by{display:flex;align-items:center;gap:12px;border:0;padding:0}.ah-av{width:44px;height:44px;margin:0;border-radius:50%;object-fit:cover}.post-author-box__placeholder{display:grid;place-items:center;background:#c6f432;color:#0b0d10;font-size:12px;font-weight:800}
+  .ah-au{margin:0 10px 0 0;padding:0}.ah-an{font:800 13px/1.2 var(--san,'Plus Jakarta Sans',sans-serif);text-transform:none;letter-spacing:0}.ah-an a{color:#0b0d10;border:0;text-decoration:none}.ah-ar{margin-top:3px;color:#5f6873;font-size:11px;line-height:1.2}
+  .ah-dt{display:flex;gap:7px;color:#4f5966;font:600 11px/1.2 var(--san,'Plus Jakarta Sans',sans-serif);text-align:left;text-transform:none;letter-spacing:0}.ah-dt span{display:inline-flex;padding:8px 12px;border-radius:999px;background:#fff}.ah-dt br{display:none}
+  .bd{padding:70px 32px 78px;background:#fff}.bd-in{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);column-gap:48px;row-gap:34px;max-width:1256px;padding:0;margin:0 auto;align-items:start}
+  .li{grid-column:1;grid-row:1;margin:0;border-radius:22px;overflow:hidden}.li img{width:100%;aspect-ratio:1.78;display:block;object-fit:cover}.rl{grid-column:2;grid-row:1/span 2;position:static;display:flex;flex-direction:column;gap:24px}
+  .rc{border:0;border-radius:20px;background:#f2f4f6;padding:24px}.rc-t{border:0;padding:0 0 15px;background:transparent;color:#0b0d10;font:800 16px/1.2 var(--san,'Plus Jakarta Sans',sans-serif);letter-spacing:-.02em;text-transform:none}.rc-b{padding:0}.tc{display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:center;margin-top:7px;padding:10px 12px;border:0;border-radius:11px;background:#fff;text-decoration:none}.tc-n{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:#c6f432;color:#0b0d10;font-size:11px;font-weight:800}.tc-h{color:#1f252d;font:600 12px/1.25 var(--san,'Plus Jakarta Sans',sans-serif);text-transform:none}
+  .standards-card{display:flex;flex-direction:column;align-items:flex-start;padding:28px;border-radius:20px;background:#0b0d10;color:#fff;text-decoration:none}.standards-card>span{padding:6px 11px;border-radius:999px;background:#c6f432;color:#0b0d10;font-size:10px;font-weight:800;text-transform:uppercase}.standards-card strong{margin-top:15px;color:#fff;font-size:26px;line-height:1.05}.standards-card p{margin:10px 0 18px;color:#c7cdd4;font-size:12px;line-height:1.55}.standards-card b{padding:12px 14px;border-radius:9px;background:#c6f432;color:#0b0d10;font-size:11px}
+  .pr{grid-column:1;grid-row:2;color:#1f252d}:global(.pr p){margin:0 0 24px;color:#1f252d;font:400 16px/1.8 var(--san,'Plus Jakarta Sans',sans-serif)}:global(.pr>div>p:first-of-type){color:#0b0d10;font-size:17px;font-weight:700}:global(.pr h2){margin:38px 0 15px;padding:0;border:0;color:#0b0d10;font:800 28px/1.1 var(--san,'Plus Jakarta Sans',sans-serif);letter-spacing:-.035em;text-transform:none}:global(.pr h3){margin:32px 0 13px;color:#0b0d10;font:800 22px/1.12 var(--san,'Plus Jakarta Sans',sans-serif);text-transform:none}:global(.pr ul),:global(.pr ol){margin:0 0 26px;padding-left:22px;list-style:initial}:global(.pr li){padding:3px 0;border:0;color:#1f252d;font-size:16px;line-height:1.7}:global(.pr ul li::before),:global(.pr ol li::before){display:none}:global(.pr blockquote){margin:30px 0;padding:28px 32px;border-radius:18px;background:#c6f432}:global(.pr blockquote p){color:#0b0d10;font-size:22px;font-weight:800;line-height:1.2;text-transform:none}
+  .corr{display:grid;grid-template-columns:82px 1fr;gap:18px;align-items:center;margin-top:40px;padding:22px;border:0;border-radius:20px;background:#f2f4f6}.corr>img,.corr-avatar{width:82px;height:82px;border-radius:50%;object-fit:cover}.corr-avatar{display:grid;place-items:center;background:#c6f432;font-weight:800}.corr-b{padding:0;color:#5f6873;font-size:12px;line-height:1.55}.corr-b>span{display:table;margin-bottom:6px;padding:5px 9px;border-radius:999px;background:#eef7d6;color:#4f7a00;font-size:9px;font-weight:800;text-transform:uppercase}.corr-b strong{display:block;margin-bottom:5px;font-size:19px}.corr-b strong a{color:#0b0d10;text-decoration:none}.corr-b p{margin:0!important;color:#5f6873!important;font-size:12px!important;line-height:1.55!important}
+  .mo{max-width:1256px;margin:0 auto 36px;padding:48px 56px 54px;border:0;border-radius:28px;background:#f2f4f6}.mo>.w{max-width:none;padding:0}.mo .h2{margin:0;color:#0b0d10;font:800 38px/1 var(--san,'Plus Jakarta Sans',sans-serif);letter-spacing:-.04em;text-transform:none}.mo-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:28px}.mi{display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:#fff;color:#0b0d10;text-decoration:none}.mi-img{width:100%;aspect-ratio:1.45;object-fit:cover}.mi-c{flex:1;padding:18px 20px 20px;border:0}.mi-k{margin:0 0 10px}.mi-k.category-badges{gap:5px}.mi-k.category-badges span{padding:5px 9px;background:#eef7d6;color:#4f7a00;font-size:9px}.mi-h{color:#0b0d10;font-size:18px;font-weight:800;line-height:1.15;text-transform:none;letter-spacing:-.02em}
+  @media(max-width:1320px){.mo{margin-inline:32px}}
+  @media(max-width:800px){
+    .ah{padding:16px 16px 0}.ah>.w{border-radius:22px}.ah-in{padding:32px}.category-badges{margin-bottom:18px}.ah h1{font-size:43px;line-height:.94;margin-bottom:27px}.ah-by{flex-wrap:wrap}.ah-dt{width:100%;margin-top:2px}.ah-dt span{padding:8px 13px}
+    .bd{padding:40px 16px 48px}.bd-in{display:flex;flex-direction:column;gap:24px}.li{order:0;width:100%;border-radius:22px}.li img{aspect-ratio:1.58}.rl{display:contents}.toc{order:1;width:100%;padding:24px;border-radius:20px}.pr{order:2;width:100%}.standards-card{order:3;width:100%;margin-top:18px;padding:26px;border-radius:22px}
+    :global(.pr p){font-size:18px;line-height:1.78;margin-bottom:24px}:global(.pr>div>p:first-of-type){font-size:19px}:global(.pr h2){font-size:27px;margin-top:40px}:global(.pr h3){font-size:23px}:global(.pr li){font-size:18px}
+    .corr{grid-template-columns:64px 1fr;padding:22px}.corr>img,.corr-avatar{width:64px;height:64px}.corr-b p{font-size:13px!important}.mo{margin:0 16px 36px;padding:32px 28px 34px;border-radius:22px}.mo .h2{font-size:31px}.mo-g{grid-template-columns:1fr;gap:22px}.mi-img{aspect-ratio:1.35}.mi-h{font-size:21px}
+  }
+</style>

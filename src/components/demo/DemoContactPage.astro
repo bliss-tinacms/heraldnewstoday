@@ -1,0 +1,175 @@
+---
+import { tinaField } from '@tinacms/astro/tina-field';
+const { data = null, config = null } = Astro.props;
+const block = Array.isArray(data?.blocks) ? data.blocks[0] : data;
+const hero = block?.hero || {};
+const formSection = block?.formSection || {};
+const requests = block?.requests || {};
+const requestCards = Array.isArray(requests?.cards) ? requests.cards : [];
+const formAction = formSection.formAction || config?.contactForm?.formspreeEndpoint || '';
+const formConfigured = /^https:\/\/formspree\.io\/f\/[A-Za-z0-9_-]+$/.test(formAction);
+const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAccent = heroWords.pop() || ''; const heroLead = heroWords.join(' ');
+---
+<main class="ffn-demo ffn-demo-contact">
+  <header class="ph"><div class="w"><div class="ph-in"><div class="ph-k"><b data-tina-field={tinaField(hero, 'eyebrow')}>{hero.eyebrow}</b></div><h1 data-tina-field={tinaField(hero, 'headline')}>{heroLead} <span>{heroAccent}</span></h1><p class="ph-d" data-tina-field={tinaField(hero, 'lede')}>{hero.lede}</p></div></div></header>
+  <section class="sc contact-main"><div class="w contact-grid">
+    <div class="contact-guide">
+      <h2 class="contact-guide-title" data-tina-field={tinaField(requests, 'title')}>{requests.title}</h2>
+      <p class="contact-guide-intro" data-tina-field={tinaField(requests, 'intro')}>{requests.intro}</p>
+      <div class="contact-notes">
+        {requestCards.map((card: any, index: number) => <details class="contact-note" open={index === 0}>
+          <summary><span data-tina-field={tinaField(card, 'title')}>{card.title}</span><i aria-hidden="true"></i></summary>
+          <p data-tina-field={tinaField(card, 'text')}>{card.text}</p>
+        </details>)}
+      </div>
+    </div>
+    <form class="contact-form" method="POST" action={formConfigured ? formAction : undefined}>
+      <h2 data-tina-field={tinaField(formSection, 'formTitle')}>{formSection.formTitle}</h2>
+      <p data-tina-field={tinaField(formSection, 'description')}>{formSection.description}</p>
+      <input type="hidden" name="_subject" value={formSection.subject || config?.contactForm?.subject || ''} />
+      <div class="contact-fields">
+        <div class="fr"><label class="fl" for="f-name">Name</label><input class="fi" id="f-name" name="full_name" type="text" required /></div>
+        <div class="fr"><label class="fl" for="f-phone">Phone</label><input class="fi" id="f-phone" name="phone" type="tel" /></div>
+        <div class="fr contact-email"><label class="fl" for="f-email">Email</label><input class="fi" id="f-email" name="email" type="email" required /></div>
+        <div class="fr contact-message"><label class="fl" for="f-msg">Message</label><textarea class="fi" id="f-msg" name="message" required></textarea></div>
+      </div>
+      <div class="contact-form-foot"><p data-tina-field={tinaField(formSection, 'note')}>{formSection.note}</p><button type="submit" disabled={!formConfigured} aria-disabled={!formConfigured} data-tina-field={tinaField(formSection, 'buttonText')}>{formSection.buttonText}</button></div>
+    </form>
+  </div></section>
+</main>
+
+<style>
+  .ffn-demo-contact .ph {
+    padding: 28px 0 !important;
+  }
+
+  .ffn-demo-contact .ph > .w {
+    max-width: 1256px !important;
+  }
+
+  .ffn-demo-contact .ph-in {
+    padding: 72px !important;
+  }
+
+  .ffn-demo-contact .ph h1 {
+    max-width: 930px !important;
+    margin: 26px 0 24px !important;
+    font-size: 72px !important;
+    line-height: .96 !important;
+  }
+
+  .ffn-demo-contact .ph-d {
+    max-width: 920px !important;
+    font-size: 17px !important;
+    line-height: 1.65 !important;
+  }
+
+  .ffn-demo-contact .contact-main {
+    padding: 56px 0 0 !important;
+  }
+
+  .ffn-demo-contact .contact-grid {
+    width: 1256px;
+    max-width: calc(100% - 56px) !important;
+    grid-template-columns: minmax(0, 493px) minmax(0, 596px) !important;
+    gap: 55px !important;
+    padding: 56px !important;
+  }
+
+  .ffn-demo-contact .contact-guide-title,
+  .ffn-demo-contact .contact-form h2 {
+    font-size: 34px;
+  }
+
+  .ffn-demo-contact .contact-form {
+    padding: 44px;
+    border: 0;
+  }
+
+  .ffn-demo-contact .contact-fields {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 16px;
+  }
+
+  .ffn-demo-contact .contact-email,
+  .ffn-demo-contact .contact-message {
+    grid-column: 1 / -1;
+  }
+
+  .ffn-demo-contact .contact-form textarea.fi {
+    min-height: 205px !important;
+  }
+
+  @media (max-width: 1023px) {
+    .ffn-demo-contact .ph {
+      padding: 16px !important;
+    }
+
+    .ffn-demo-contact .ph-in {
+      padding: 32px !important;
+    }
+
+    .ffn-demo-contact .ph h1 {
+      max-width: 220px !important;
+      margin: 0 0 13px !important;
+      font-size: 44px !important;
+      line-height: 1.02 !important;
+    }
+
+    .ffn-demo-contact .ph-d {
+      font-size: 18px !important;
+      line-height: 1.62 !important;
+    }
+
+    .ffn-demo-contact .contact-main {
+      padding: 48px 0 0 !important;
+    }
+
+    .ffn-demo-contact .contact-grid {
+      width: auto;
+      max-width: none !important;
+      margin: 0 16px;
+      grid-template-columns: 1fr !important;
+      gap: 32px !important;
+      padding: 24px !important;
+    }
+
+    .ffn-demo-contact .contact-guide-title,
+    .ffn-demo-contact .contact-form h2 {
+      font-size: 28px;
+    }
+
+    .ffn-demo-contact .contact-guide-intro,
+    .ffn-demo-contact .contact-form > p {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .ffn-demo-contact .contact-note {
+      padding: 20px 22px !important;
+    }
+
+    .ffn-demo-contact .contact-note p {
+      font-size: 18px !important;
+      line-height: 1.65 !important;
+    }
+
+    .ffn-demo-contact .contact-note summary span {
+      font-size: 18px !important;
+    }
+
+    .ffn-demo-contact .contact-form {
+      padding: 24px !important;
+      border: 0 !important;
+    }
+
+    .ffn-demo-contact .contact-fields {
+      grid-template-columns: 1fr;
+    }
+
+    .ffn-demo-contact .contact-email,
+    .ffn-demo-contact .contact-message {
+      grid-column: auto;
+    }
+  }
+</style>

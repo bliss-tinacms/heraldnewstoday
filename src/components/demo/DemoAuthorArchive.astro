@@ -1,0 +1,102 @@
+---
+import { getBlogPermalink } from '../../lib/permalinks';
+
+const { archiveTitle = 'Author', posts = [], currentPage = 1, totalPages = 1, basePath = '/author' } = Astro.props;
+type Ref = { title?: string | null; name?: string | null; _sys?: { filename?: string | null } | null };
+function postUrl(post: any) { const url = getBlogPermalink(post); return url.endsWith('/') ? url : url + '/'; }
+function pagePath(page: number) { return page <= 1 ? basePath + '/' : basePath + '/page/' + page + '/'; }
+function categoryRefs(post: any): unknown[] {
+  const values = Array.isArray(post?.categories) ? post.categories : post?.category ? [post.category] : [];
+  return values.map((item: any) => item && typeof item === 'object' && 'category' in item ? item.category : item).filter(Boolean);
+}
+function categoryInfo(reference: unknown) {
+  if (typeof reference === 'string') {
+    const slug = reference.split('/').pop()?.replace(/\.(json|mdx?)$/i, '') || '';
+    return { label: slug.replace(/[-_]+/g, ' '), slug };
+  }
+  const item = reference as Ref;
+  const label = item?.title || item?.name || item?._sys?.filename || '';
+  const slug = item?._sys?.filename || label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return { label, slug };
+}
+const lead = posts[0];
+const rest = posts.slice(1);
+const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1).filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1);
+---
+
+<main class="author-stories">
+  {lead ? (
+    <>
+      <section class="author-lead">
+        <a href={postUrl(lead)} class="author-lead__link">
+          {lead.heroImage && <img src={lead.heroImage} alt={lead.heroImageAlt || lead.title || ''} />}
+          <span class="author-lead__shade" aria-hidden="true"></span>
+          <div class="author-lead__copy">
+            <div class="badges">
+              {categoryRefs(lead).map((ref) => { const category = categoryInfo(ref); return category.label && <span>{category.label}</span>; })}
+            </div>
+            <h2>{lead.title}</h2>
+            {lead.description && <p>{lead.description}</p>}
+          </div>
+        </a>
+      </section>
+
+      {rest.length > 0 && (
+        <section class="author-grid" aria-label={`More stories by ${archiveTitle}`}>
+          {rest.map((post: any) => (
+            <article class="author-card">
+              <a class="author-card__image" href={postUrl(post)}>
+                {post.heroImage ? <img src={post.heroImage} alt={post.heroImageAlt || post.title || ''} /> : <span aria-hidden="true"></span>}
+              </a>
+              <h2><a href={postUrl(post)}>{post.title}</a></h2>
+              <div class="badges">
+                {categoryRefs(post).map((ref) => { const category = categoryInfo(ref); return category.label && <a href={`/${category.slug}/`}>{category.label}</a>; })}
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+    </>
+  ) : (
+    <section class="archive-empty">
+      <h2>{`No articles by ${archiveTitle} yet.`}</h2>
+      <p>{`Articles by ${archiveTitle} will appear here when they are published.`}</p>
+      <a href="/blog/">Browse all articles</a>
+    </section>
+  )}
+
+  {totalPages > 1 && (
+    <nav class="archive-pagination" aria-label="Archive pagination">
+      {currentPage > 1 && <a href={pagePath(currentPage - 1)} aria-label="Previous page">←</a>}
+      {pageNumbers.map((page, index) => (
+        <>
+          {index > 0 && pageNumbers[index - 1] !== page - 1 && <span aria-hidden="true">…</span>}
+          <a class:list={{ active: page === currentPage }} href={pagePath(page)} aria-current={page === currentPage ? 'page' : undefined}>{page}</a>
+        </>
+      ))}
+      {currentPage < totalPages && <a class="next" href={pagePath(currentPage + 1)}>Next →</a>}
+    </nav>
+  )}
+</main>
+
+<style>
+  .author-stories{max-width:1256px;margin:0 auto;padding:70px 0 26px;background:#fff;color:#0b0d10;font-family:var(--san,'Plus Jakarta Sans',sans-serif)}
+  .author-lead__link{position:relative;display:block;aspect-ratio:2.24;border-radius:26px;overflow:hidden;background:#1f252d;color:#fff;text-decoration:none}
+  .author-lead img{width:100%;height:100%;display:block;object-fit:cover}
+  .author-lead__shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,13,16,.02) 30%,rgba(11,13,16,.86) 100%)}
+  .author-lead__copy{position:absolute;left:56px;right:56px;bottom:48px;max-width:850px}
+  .badges{display:flex;flex-wrap:wrap;gap:6px}.badges span,.badges a{display:inline-flex;padding:6px 11px;border-radius:999px;background:#eef7d6;color:#4f7a00;font-size:11px;font-weight:800;line-height:1;text-transform:uppercase;letter-spacing:.04em;text-decoration:none}
+  .author-lead .badges span{background:#c6f432;color:#0b0d10}
+  .author-lead h2{margin:15px 0 10px;color:#fff;font-family:var(--san,'Plus Jakarta Sans',sans-serif);font-size:clamp(36px,4.4vw,62px);font-weight:800;letter-spacing:-.05em;line-height:1.02}
+  .author-lead p{max-width:700px;margin:0;color:rgba(255,255,255,.82);font-size:15px;line-height:1.6}
+  .author-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:38px 24px;margin-top:82px}
+  .author-card__image{display:block;aspect-ratio:1.33;border-radius:20px;overflow:hidden;background:#f2f4f6}.author-card__image img,.author-card__image span{width:100%;height:100%;display:block;object-fit:cover}
+  .author-card h2{margin:15px 4px 12px;font-family:var(--san,'Plus Jakarta Sans',sans-serif);font-size:20px;font-weight:800;line-height:1.18;letter-spacing:-.025em}.author-card h2 a{color:#0b0d10;text-decoration:none}.author-card .badges{margin-left:4px}
+  .archive-empty{padding:70px;border-radius:26px;background:#f2f4f6;text-align:center}.archive-empty h2{margin:0 0 12px;font-size:36px;line-height:1.05}.archive-empty p{margin:0 0 24px;color:#5f6873}.archive-empty>a{display:inline-flex;padding:14px 20px;border-radius:10px;background:#c6f432;color:#0b0d10;font-weight:800;text-decoration:none}
+  .archive-pagination{display:flex;justify-content:center;gap:8px;margin:64px 0 20px}.archive-pagination a,.archive-pagination>span{display:grid;place-items:center;min-width:48px;height:48px;padding:0 16px;border-radius:12px;background:#f2f4f6;color:#0b0d10;font-size:14px;font-weight:800;text-decoration:none}.archive-pagination a.active{background:#0b0d10;color:#c6f432}.archive-pagination a.next{background:#c6f432}
+  @media(max-width:1320px){.author-stories{margin-inline:32px}}
+  @media(max-width:700px){
+    .author-stories{margin-inline:16px;padding-top:40px}.author-lead__link{aspect-ratio:.94;border-radius:22px}.author-lead__copy{left:24px;right:24px;bottom:28px}.author-lead h2{font-size:29px;line-height:1.05}.author-lead p{display:none}
+    .author-grid{grid-template-columns:1fr;gap:30px;margin-top:48px}.author-card__image{aspect-ratio:1.33}.author-card h2{font-size:20px}.archive-empty{padding:36px 22px}.archive-empty h2{font-size:28px}.archive-pagination{justify-content:flex-start;flex-wrap:wrap;margin-top:52px}
+  }
+</style>

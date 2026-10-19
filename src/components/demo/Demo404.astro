@@ -1,0 +1,60 @@
+---
+import { tinaField } from '@tinacms/astro/tina-field';
+const { data = {} } = Astro.props;
+---
+<main class="ffn-demo ffn-demo-404">
+  <section class="not-found"><div class="w"><div class="not-found-panel">
+    <div class="not-found-code" aria-label="Error 404"><span>4</span><em>0</em><span>4</span></div>
+    <h1 data-tina-field={tinaField(data, 'title')}>{data.title}</h1>
+    <p data-tina-field={tinaField(data, 'description')}>{data.description}</p>
+    <a href={data.buttonHref || '/'} data-tina-field={tinaField(data, 'buttonText')}>{data.buttonText} →</a>
+  </div></div></section>
+</main>
+
+<style>
+  .ffn-demo-404 .not-found {
+    padding: 28px 0 0;
+  }
+
+  .ffn-demo-404 .not-found > .w {
+    max-width: 1256px;
+    padding: 0 !important;
+  }
+
+  .ffn-demo-404 .not-found-panel {
+    padding: 136px 32px 104px;
+  }
+
+  .ffn-demo-404 .not-found-code {
+    font-size: 300px;
+  }
+
+  .ffn-demo-404 .not-found-panel h1 {
+    margin: 42px 0 22px;
+    font-size: 68px;
+  }
+
+  @media (max-width: 1023px) {
+    .ffn-demo-404 .not-found {
+      padding: 16px 16px 0;
+    }
+
+    .ffn-demo-404 .not-found-panel {
+      padding: 50px 22px 38px;
+    }
+
+    .ffn-demo-404 .not-found-code {
+      font-size: 132px;
+    }
+
+    .ffn-demo-404 .not-found-panel h1 {
+      max-width: 240px !important;
+      margin: 34px auto 22px;
+      font-size: 44px;
+    }
+
+    .ffn-demo-404 .not-found-panel > a {
+      padding: 18px 28px !important;
+    }
+  }
+</style>

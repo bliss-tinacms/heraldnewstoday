@@ -1,0 +1,103 @@
+---
+import { getBlogPermalink } from '../../lib/permalinks';
+import { getAuthorName } from './DemoHelpers';
+
+const { archiveTitle = 'Category', posts = [], currentPage = 1, totalPages = 1, basePath = '/' } = Astro.props;
+const lead = posts[0];
+const rest = posts.slice(1);
+function postUrl(post: any) { const url = getBlogPermalink(post); return url.endsWith('/') ? url : url + '/'; }
+function pagePath(page: number) { return page <= 1 ? basePath + '/' : basePath + '/page/' + page + '/'; }
+function authorSlug(reference: any) {
+  const raw = typeof reference === 'string' ? reference.split('/').pop()?.replace(/\.(json|mdx?)$/i, '') : reference?._sys?.filename;
+  return raw ? `/author/${raw}/` : '/blog/';
+}
+const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1).filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1);
+---
+
+<main class="category-archive">
+  {lead ? (
+    <>
+      <section class="category-lead">
+        <a href={postUrl(lead)} class="category-lead__link">
+          {lead.heroImage && <img src={lead.heroImage} alt={lead.heroImageAlt || lead.title || ''} />}
+          <span class="category-lead__shade" aria-hidden="true"></span>
+          <div class="category-lead__copy">
+            <span class="category-lead__label">Latest</span>
+            <h2>{lead.title}</h2>
+            <span class="category-lead__author">{getAuthorName(lead.author)}</span>
+          </div>
+        </a>
+      </section>
+
+      {rest.length > 0 && (
+        <section class="category-grid" aria-label={`More in ${archiveTitle}`}>
+          {rest.map((post: any) => (
+            <article class="category-card">
+              <a class="category-card__image" href={postUrl(post)}>
+                {post.heroImage
+                  ? <img src={post.heroImage} alt={post.heroImageAlt || post.title || ''} />
+                  : <span aria-hidden="true"></span>}
+              </a>
+              <h2><a href={postUrl(post)}>{post.title}</a></h2>
+              <a class="category-card__author" href={authorSlug(post.author)}>{getAuthorName(post.author)}</a>
+            </article>
+          ))}
+        </section>
+      )}
+    </>
+  ) : (
+    <section class="archive-empty">
+      <h2>{`No articles in ${archiveTitle} yet.`}</h2>
+      <p>{`New ${archiveTitle} coverage will appear here when it is published.`}</p>
+      <a href="/blog/">Browse all articles</a>
+    </section>
+  )}
+
+  {totalPages > 1 && (
+    <nav class="archive-pagination" aria-label="Archive pagination">
+      {currentPage > 1 && <a href={pagePath(currentPage - 1)} aria-label="Previous page">←</a>}
+      {pageNumbers.map((page, index) => (
+        <>
+          {index > 0 && pageNumbers[index - 1] !== page - 1 && <span aria-hidden="true">…</span>}
+          <a class:list={{ active: page === currentPage }} href={pagePath(page)} aria-current={page === currentPage ? 'page' : undefined}>{page}</a>
+        </>
+      ))}
+      {currentPage < totalPages && <a class="next" href={pagePath(currentPage + 1)}>Next →</a>}
+    </nav>
+  )}
+</main>
+
+<style>
+  .category-archive{max-width:1256px;margin:0 auto;padding:70px 0 26px;background:#fff;color:#0b0d10;font-family:var(--san,'Plus Jakarta Sans',sans-serif)}
+  .category-lead__link{position:relative;display:block;aspect-ratio:2.24;border-radius:26px;overflow:hidden;background:#1f252d;color:#fff;text-decoration:none}
+  .category-lead img{width:100%;height:100%;display:block;object-fit:cover}
+  .category-lead__shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,13,16,.02) 30%,rgba(11,13,16,.86) 100%)}
+  .category-lead__copy{position:absolute;left:56px;right:56px;bottom:52px;max-width:850px}
+  .category-lead__label{display:inline-flex;margin-bottom:15px;padding:7px 13px;border-radius:999px;background:#c6f432;color:#0b0d10;font-size:12px;font-weight:800;line-height:1;text-transform:uppercase}
+  .category-lead h2{max-width:850px;margin:0 0 14px;color:#fff;font-family:var(--san,'Plus Jakarta Sans',sans-serif);font-size:clamp(36px,4.4vw,62px);font-weight:800;letter-spacing:-.05em;line-height:1.02}
+  .category-lead__author,.category-card__author{display:inline-flex;border-radius:999px;padding:6px 12px;background:rgba(255,255,255,.16);color:#fff;font-size:12px;font-weight:700;text-decoration:none}
+  .category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:38px 24px;margin-top:82px}
+  .category-card__image{display:block;aspect-ratio:1.33;border-radius:20px;overflow:hidden;background:#f2f4f6}
+  .category-card__image img,.category-card__image span{width:100%;height:100%;display:block;object-fit:cover}
+  .category-card h2{margin:15px 4px 12px;font-family:var(--san,'Plus Jakarta Sans',sans-serif);font-size:20px;font-weight:800;line-height:1.18;letter-spacing:-.025em}
+  .category-card h2 a{color:#0b0d10;text-decoration:none}
+  .category-card__author{margin-left:4px;background:#eef7d6;color:#4f7a00}
+  .archive-empty{padding:70px;border-radius:26px;background:#f2f4f6;text-align:center}
+  .archive-empty h2{margin:0 0 12px;font-size:36px;line-height:1.05}.archive-empty p{margin:0 0 24px;color:#5f6873}.archive-empty a{display:inline-flex;padding:14px 20px;border-radius:10px;background:#c6f432;color:#0b0d10;font-weight:800;text-decoration:none}
+  .archive-pagination{display:flex;justify-content:center;gap:8px;margin:64px 0 20px}
+  .archive-pagination a,.archive-pagination span{display:grid;place-items:center;min-width:48px;height:48px;padding:0 16px;border-radius:12px;background:#f2f4f6;color:#0b0d10;font-size:14px;font-weight:800;text-decoration:none}
+  .archive-pagination a.active{background:#0b0d10;color:#c6f432}.archive-pagination a.next{background:#c6f432}
+  @media(max-width:1320px){.category-archive{margin-inline:32px}}
+  @media(max-width:700px){
+    .category-archive{margin-inline:16px;padding-top:40px}
+    .category-lead__link{aspect-ratio:.94;border-radius:22px}
+    .category-lead__copy{left:24px;right:24px;bottom:28px}
+    .category-lead__label{font-size:12px;margin-bottom:18px}
+    .category-lead h2{font-size:29px;line-height:1.05;margin-bottom:16px}
+    .category-grid{grid-template-columns:1fr;gap:30px;margin-top:48px}
+    .category-card__image{aspect-ratio:1.33;border-radius:20px}
+    .category-card h2{font-size:20px;margin-top:14px}
+    .archive-empty{padding:36px 22px}.archive-empty h2{font-size:28px}
+    .archive-pagination{justify-content:flex-start;flex-wrap:wrap;margin-top:52px}
+  }
+</style>
