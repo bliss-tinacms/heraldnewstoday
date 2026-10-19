@@ -13,7 +13,7 @@ import time
 from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urljoin
+from urllib.parse import unquote, urljoin
 
 import requests
 
@@ -124,7 +124,12 @@ def exact_one(label: str, actual: list[str], expected: str, failures: list[str])
 
 
 def assert_text(label: str, html: str, expected: str, failures: list[str]) -> None:
-    if expected and expected.casefold() not in html.casefold(): failures.append(f"{label}: backend value absent from public SSR HTML")
+    # Compare rendered text rather than raw markup. Editable headings may wrap
+    # the final word in a design accent span while still rendering the exact
+    # backend value to readers.
+    rendered = " ".join(unescape(re.sub(r"<[^>]+>", " ", html)).split())
+    wanted = " ".join(str(expected or "").split())
+    if wanted and wanted.casefold() not in rendered.casefold(): failures.append(f"{label}: backend value absent from public SSR HTML")
 
 
 def assert_seo(label: str, route: dict, seo: dict | None, title_fallback: str, description_fallback: str, canonical_fallback: str, failures: list[str]) -> dict:
@@ -158,7 +163,7 @@ def main() -> int:
 
     routes = {
         "page": fetch_route("/"),
-        "blog": fetch_route("/blog/editorial-independence-and-sustainability/"),
+        "blog": fetch_route("/editorial-independence-and-sustainability/"),
         "category": fetch_route("/business/"),
         "user": fetch_route("/author/admin/"),
         "notFound": fetch_route("/__tina_fullcheck_missing__/", 404),
@@ -176,7 +181,7 @@ def main() -> int:
     )
     seo_results = {
         "page": assert_seo("page", routes["page"], page.get("seo"), page.get("title") or site_title, config.get("seo", {}).get("description") or "", f"{SITE}/", failures),
-        "blog": assert_seo("blog", routes["blog"], blog.get("seo"), blog.get("title") or "", blog.get("description") or "", "/blog/editorial-independence-and-sustainability/", failures),
+        "blog": assert_seo("blog", routes["blog"], blog.get("seo"), blog.get("title") or "", blog.get("description") or "", "/editorial-independence-and-sustainability/", failures),
         "category": assert_seo("category", routes["category"], category.get("seo"), f"{category.get('title')} Articles | {site_title}", category_description, "/business/", failures),
         "user": assert_seo("user", routes["user"], user.get("seo"), f"{user.get('name')} Articles | {site_title}", user.get("bio") or f"Read the latest articles by {user.get('name')} from Herald News Today.", "/author/admin/", failures),
     }
@@ -187,7 +192,7 @@ def main() -> int:
             failures.append("blogConnection returned a document without _sys.filename")
             continue
         route_key = f"blog:{filename}"
-        blog_route = routes["blog"] if filename == "editorial-independence-and-sustainability" else fetch_route(f"/blog/{filename}/")
+        blog_route = routes["blog"] if filename == "editorial-independence-and-sustainability" else fetch_route(f"/{filename}/")
         routes[route_key] = blog_route
         assert_text(f"{route_key}.title", blog_route["html"], node.get("title") or "", failures)
         expected_categories = []
@@ -207,7 +212,10 @@ def main() -> int:
     assert_text("config.seo.title", routes["page"]["html"], config.get("seo", {}).get("title") or "", failures)
     config_logo = config.get("seo", {}).get("logo") or ""
     if config_logo:
-        assert_text("config.seo.logo", routes["page"]["html"], config_logo, failures)
+        # Images are not visible text and Astro may place the source URL inside
+        # an encoded image-service URL. Verify the decoded HTML attribute data.
+        if config_logo.casefold() not in unquote(routes["page"]["html"]).casefold():
+            failures.append("config.seo.logo: backend image absent from public SSR HTML")
     for field in ("ctaEyebrow", "ctaTitle", "ctaText", "ctaButtonText"):
         assert_text(f"config.footer.{field}", routes["page"]["html"], (config.get("footer") or {}).get(field) or "", failures)
     for field in ("title", "description", "buttonText"):
