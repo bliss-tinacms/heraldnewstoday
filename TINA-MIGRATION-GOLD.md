@@ -57,6 +57,16 @@ Missing destination identity must fail validation. It must never fall back to th
 
 ### 5. Query the verified Tina destination first
 
+#### 5.0 Verify every provided destination resource before declaring anything missing
+
+- **Do not assume from the default account, organization, repository, key, or token shown after login.** Enumerate the organizations available to the supplied Tina account and deliberately select the organization that owns the destination project.
+- For Bliss Drive publisher migrations, check **`bliss-tinacms's Organization` first**, not `Bliss Drive's Organization`. The `Bliss Drive` login may be an Admin collaborator while the project is owned by the `bliss-tinacms` organization. An empty project list in `Bliss Drive's Organization` does **not** prove that the supplied account has no projects.
+- For `heraldnewstoday`, explicitly select **`bliss-tinacms's Organization`** and verify the existing **`heraldnewstoday`** project before making any project-access conclusion.
+- Double-check the supplied Tina login, selected organization, project name/client ID, connected GitHub account and repository, branch, API keys, content token, Cloudinary credentials/folder, Formspree endpoint, cPanel account/domain, and deployment paths against the provided tracker, secret store, repository environment, and live service UI. Compare secret values with masked fingerprints or equality checks; never print them.
+- A login landing in the wrong organization, one failed request, an empty default view, or a missing local credential helper is not evidence that the resource was not provided. Search all approved provided sources and switch to the verified owner organization before reporting `BLOCKED`.
+- Never create a replacement account, project, repository, API key, token, form, media folder, or deployment target merely because the first/default selection is empty. Use the provided resources and verify their identity and permissions first.
+- Record positive evidence for each identity contract: exact organization, project/client ID, connected repository, branch, and successful authorized query. If evidence conflicts, stop and reconcile it instead of guessing.
+
 - Construct the direct Tina content endpoint from the verified destination client ID and branch.
 - For server-side/public reads, prioritize that verified endpoint ahead of inherited `TINA_UPSTREAM_CONTENT_API_URL` or `TINA_DIRECT_CONTENT_API_URL` values.
 - Require returned Global Config/site identity to match the destination before Cloud data can override repository fallback.
