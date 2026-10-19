@@ -19,7 +19,12 @@
     "subject": "Herald News Today contact form submission"
   },
   "footer": {
-    "copyright": "\u00a9 {year} {site}. All rights reserved.",
+    "ctaEyebrow": "Write for us HNT-LIVE-GATE-20261019-2350",
+    "ctaTitle": "Have a story worth telling?",
+    "ctaText": "We welcome reported features, analysis, and first-person essays from writers with real expertise and a fresh angle.",
+    "ctaButtonText": "Pitch the editors",
+    "ctaButtonHref": "/write-for-us/",
+    "copyright": "© {year} {site}. All rights reserved.",
     "legalLinks": [
       {
         "label": "Privacy",
@@ -49,24 +54,19 @@
         "label": "Sitemap",
         "href": "/sitemap/"
       }
-    ],
-    "ctaEyebrow": "Write for us",
-    "ctaTitle": "Have a story worth telling?",
-    "ctaText": "We welcome reported features, analysis, and first-person essays from writers with real expertise and a fresh angle.",
-    "ctaButtonText": "Pitch the editors",
-    "ctaButtonHref": "/write-for-us/"
+    ]
   },
-  "codeInjection": {
-    "headerCode": "",
-    "footerCode": ""
-  },
-  "contactLinks": [],
-  "footerStarfield": false,
   "notFound": {
     "eyebrow": "Page not found",
     "title": "Page not found",
     "description": "The page you are looking for may have moved, been renamed, or no longer exists. Head back to the homepage to keep reading.",
     "buttonText": "Back to homepage",
     "buttonHref": "/"
-  }
+  },
+  "codeInjection": {
+    "headerCode": "",
+    "footerCode": ""
+  },
+  "contactLinks": [],
+  "footerStarfield": false
 }
