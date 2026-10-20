@@ -14,12 +14,16 @@
       "href": "/our-team/"
     },
     {
-      "label": "Contact Us",
+      "label": "Contact",
       "href": "/contact/"
     },
     {
       "label": "Blog",
       "href": "/blog/"
+    },
+    {
+      "label": "Write for Us",
+      "href": "/write-for-us/"
     }
   ]
 }

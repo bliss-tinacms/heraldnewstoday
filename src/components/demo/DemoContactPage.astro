@@ -11,7 +11,7 @@ const formConfigured = /^https:\/\/formspree\.io\/f\/[A-Za-z0-9_-]+$/.test(formA
 const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAccent = heroWords.pop() || ''; const heroLead = heroWords.join(' ');
 ---
 <main class="ffn-demo ffn-demo-contact">
-  <header class="ph"><div class="w"><div class="ph-in"><div class="ph-k"><b data-tina-field={tinaField(hero, 'eyebrow')}>{hero.eyebrow}</b></div><h1 data-tina-field={tinaField(hero, 'headline')}>{heroLead} <span>{heroAccent}</span></h1><p class="ph-d" data-tina-field={tinaField(hero, 'lede')}>{hero.lede}</p></div></div></header>
+  <header class="ph"><div class="w"><div class="ph-in"><div class="ph-k" data-tina-field={tinaField(hero, 'eyebrow')}>{hero.eyebrow}</div><h1 data-tina-field={tinaField(hero, 'headline')}>{heroLead} <span>{heroAccent}</span></h1><p class="ph-d" data-tina-field={tinaField(hero, 'lede')}>{hero.lede}</p></div></div></header>
   <section class="sc contact-main"><div class="w contact-grid">
     <div class="contact-guide">
       <h2 class="contact-guide-title" data-tina-field={tinaField(requests, 'title')}>{requests.title}</h2>
@@ -24,8 +24,8 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
       </div>
     </div>
     <form class="contact-form" method="POST" action={formConfigured ? formAction : undefined}>
-      <h2 data-tina-field={tinaField(formSection, 'formTitle')}>{formSection.formTitle}</h2>
-      <p data-tina-field={tinaField(formSection, 'description')}>{formSection.description}</p>
+      <div class="contact-form-heading"><h2 data-tina-field={tinaField(formSection, 'formTitle')}>{formSection.formTitle}</h2>
+      <p data-tina-field={tinaField(formSection, 'description')}>{formSection.description}</p></div>
       <input type="hidden" name="_subject" value={formSection.subject || config?.contactForm?.subject || ''} />
       <div class="contact-fields">
         <label class="fr"><span class="fl">Name</span><input class="fi" name="name" type="text" autocomplete="name" required /></label>
@@ -33,7 +33,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
         <label class="fr contact-email"><span class="fl">Email</span><input class="fi" name="email" type="email" autocomplete="email" required /></label>
         <label class="fr contact-message"><span class="fl">Message</span><textarea class="fi" name="message" rows="6" required></textarea></label>
       </div>
-      <div class="contact-form-foot"><p data-tina-field={tinaField(formSection, 'note')}>{formSection.note}</p><button type="submit" disabled={!formConfigured} aria-disabled={!formConfigured}><span data-tina-field={tinaField(formSection, 'buttonText')}>{formSection.buttonText}</span> <span aria-hidden="true">↗</span></button></div>
+      <div class="contact-form-foot"><button type="submit" disabled={!formConfigured} aria-disabled={!formConfigured}><span data-tina-field={tinaField(formSection, 'buttonText')}>{formSection.buttonText}</span> <span aria-hidden="true">↗</span></button></div>
     </form>
   </div></section>
 </main>
@@ -77,8 +77,13 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
     line-height: 1.7 !important;
   }
 
+  .ffn-demo-contact .ph-in { display:flex; flex-direction:column; gap:28px; padding:72px !important; }
+  .ffn-demo-contact .ph-k { align-self:flex-start; width:max-content; display:inline-flex !important; align-items:center; gap:8px !important; margin:0 !important; padding:7px 14px !important; font:700 13px/1.2 var(--san) !important; }
+  .ffn-demo-contact .ph h1 { margin:0 !important; width:100%; max-width:none !important; font:800 clamp(44px,6.4vw,96px)/.98 var(--san) !important; letter-spacing:-.045em !important; }
+  .ffn-demo-contact .ph-d { margin:0 !important; width:100%; max-width:none !important; font:400 18px/1.7 var(--san) !important; color:#1f252d !important; }
+
   .ffn-demo-contact .contact-main {
-    padding: clamp(64px, 7vw, 104px) 0 0 !important;
+    padding: clamp(48px, 6vw, 88px) 0 0 !important;
   }
 
   .ffn-demo-contact .contact-grid {
@@ -86,7 +91,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
     max-width: calc(100% - 64px) !important;
     display: flex !important;
     flex-wrap: wrap;
-    gap: clamp(32px, 5vw, 64px) !important;
+    gap: clamp(32px, 4vw, 56px) !important;
     padding: 56px !important;
     border-radius: 36px !important;
   }
@@ -97,6 +102,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
 
   .ffn-demo-contact .contact-guide-title {
     font-size: clamp(32px, 3.8vw, 50px);
+    line-height: 1.02 !important;
   }
 
   .ffn-demo-contact .contact-form h2 {
@@ -114,13 +120,19 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
     border-radius: 28px;
   }
 
-  .ffn-demo-contact .contact-form > h2,
-  .ffn-demo-contact .contact-form > p { margin: 0 !important; }
+  .ffn-demo-contact .contact-form-heading { display:flex; flex-direction:column; gap:8px; }
+  .ffn-demo-contact .contact-form-heading > h2 { margin: 0 !important; }
+  .ffn-demo-contact .contact-form-heading > p { margin:0 !important; font:400 16px/1.6 var(--san) !important; color:#5f6873 !important; }
 
   .ffn-demo-contact .contact-fields {
     grid-template-columns: 1fr 1fr;
-    gap: 18px 16px;
+    gap: 18px;
   }
+
+  .ffn-demo-contact .contact-form .fl { font-size: 15px !important; font-weight: 700 !important; }
+  .ffn-demo-contact .contact-form .fi { font-size: 18px !important; border: 1.5px solid #0b0d101a !important; }
+  .ffn-demo-contact .contact-form-foot { display: block; }
+  .ffn-demo-contact .contact-form-foot button { width: 100%; }
 
   .ffn-demo-contact .contact-email,
   .ffn-demo-contact .contact-message {
@@ -133,11 +145,12 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
 
   @media (max-width: 1023px) {
     .ffn-demo-contact .ph {
-      padding: 16px !important;
+      padding: 16px 16px 0 !important;
     }
 
     .ffn-demo-contact .ph-in {
       padding: 32px !important;
+      gap: 20px !important;
     }
 
     .ffn-demo-contact .ph h1 {
@@ -149,11 +162,11 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
 
     .ffn-demo-contact .ph-d {
       font-size: 18px !important;
-      line-height: 1.62 !important;
+      line-height: 1.7 !important;
     }
 
     .ffn-demo-contact .contact-main {
-      padding: 64px 0 0 !important;
+      padding: 48px 0 0 !important;
     }
 
     .ffn-demo-contact .contact-grid {
@@ -162,7 +175,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
       margin: 0 16px;
       grid-template-columns: 1fr !important;
       gap: 32px !important;
-      padding: 28px !important;
+      padding: 24px !important;
     }
 
     .ffn-demo-contact .contact-guide-title,
@@ -189,6 +202,8 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
       padding: 28px !important;
       border: 0 !important;
     }
+
+    .ffn-demo-contact .contact-guide-title { font-size: 32px !important; line-height: 1.02 !important; }
 
     .ffn-demo-contact .contact-fields {
       grid-template-columns: 1fr;

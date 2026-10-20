@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 const base = (process.env.TARGET_BASE || 'http://127.0.0.1:4406').replace(/\/$/, '');
 const cases = [
   { name: 'homepage', path: '/', selector: '.lock-hero h1', frame: '.lock-hero', desktop: 120.96, mobile: 52, required: ['.lock-topic-grid', '.lock-about-panel', '.lock-story-grid', '.lock-commitment-panel', '.lock-process-panel', '.lock-team-grid'] },
-  { name: 'about', path: '/about/', selector: '.about-hero h1', frame: '.about-hero-panel', desktop: 92.16, mobile: 44, required: ['.broader-image', '.purpose-panel', '.standards-grid', '.readers-grid', '.explore-section'] },
+  { name: 'about', path: '/about/', selector: '.about-hero-wrap h1', frame: '.about-hero-panel', desktop: 92.16, mobile: 44, required: ['.broader-image', '.purpose-panel', '.standards-grid', '.readers-grid', '.explore-section'] },
   { name: 'contact', path: '/contact/', selector: '.ffn-demo-contact h1', frame: '.ffn-demo-contact .ph > .w', desktop: 92.16, mobile: 44, required: ['.contact-guide', '.contact-form', 'form'] },
   { name: 'team', path: '/our-team/', selector: '.team-hero h1', frame: '.team-hero-panel', desktop: 92.16, mobile: 44, required: ['.leader-list', '.leader-card', '.staff-grid'] },
   { name: 'article', path: '/blog/editorial-independence-and-sustainability/', selector: '.ah h1', frame: '.ah > .w', desktop: 80.64, mobile: 40, required: ['.li', '.pr', '#about-author', '.standards-card'] },

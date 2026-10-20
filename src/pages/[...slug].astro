@@ -1,5 +1,6 @@
 ---
 import { getBlogPermalink, getBlogRouteSlug, getPageRouteSlug } from '../lib/permalinks';
+import { getRouteAlias } from '../lib/route-aliases.mjs';
 import Base from '../layouts/Base.astro';
 import BlogPost from '../layouts/BlogPost.astro';
 import TinaIsland from '@tinacms/astro/TinaIsland.astro';
@@ -16,6 +17,8 @@ export const prerender = false;
 
 const POSTS_PER_PAGE = 30;
 const routeSlug = (Astro.params.slug ?? '').toString().toLowerCase().replace(/^\/+|\/+$/g, '');
+const compatibilityTarget = getRouteAlias(routeSlug);
+if (compatibilityTarget) return Astro.redirect(compatibilityTarget, 301);
 const config = (await getConfig()).data?.config ?? null;
 const liveNotFound = Object.fromEntries(Object.entries(config?.notFound || {}).filter(([, value]) => value !== null && value !== undefined));
 const notFound = { ...localConfig.notFound, ...liveNotFound };
