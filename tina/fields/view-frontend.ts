@@ -1,50 +1,18 @@
 import React from 'react';
 import type { TinaField } from 'tinacms';
+import { resolveFrontendHref } from './view-frontend-route.mjs';
 
 type ViewKind = 'blog' | 'page';
-
-function normalizeSlug(value?: string | null) {
-  return String(value || '')
-    .toLowerCase()
-    .replace(/\\/g, '/')
-    .replace(/^\/+|\/+$/g, '')
-    .replace(/\.(mdx?|json)$/i, '')
-    .split('/')
-    .map((part) => part.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''))
-    .filter(Boolean)
-    .join('/');
-}
-
-function filenameFromBrowser(kind: ViewKind) {
-  if (typeof window === 'undefined') return '';
-  const text = decodeURIComponent(window.location.href || '').replace(/\\/g, '/');
-  const pattern = kind === 'blog'
-    ? /src\/content\/blog\/([^?#]+?)\.(mdx?|json)/i
-    : /src\/content\/page\/([^?#]+?)\.(mdx?|json)/i;
-  const match = text.match(pattern);
-  return match?.[1] || '';
-}
-
-function resolveFrontendUrl(kind: ViewKind, values: Record<string, any>) {
-  const raw =
-    values?.permalink ||
-    values?._sys?.filename ||
-    values?.filename ||
-    filenameFromBrowser(kind) ||
-    values?.title ||
-    values?.seoTitle ||
-    '';
-
-  const slug = normalizeSlug(raw);
-  if (kind === 'blog') return slug ? '/' + (slug.startsWith('blog/') ? slug.slice(5) : slug) + '/' : '/blog/';
-  if (!slug || slug === 'home' || slug === 'index') return '/';
-  return '/' + slug + '/';
-}
 
 function ViewFrontendComponent(kind: ViewKind) {
   return function ViewFrontendField(props: any) {
     const values = props?.form?.getState?.()?.values || {};
-    const href = resolveFrontendUrl(kind, values);
+    const href = resolveFrontendHref({
+      collection: kind,
+      values,
+      form: props?.form,
+      location: typeof window === 'undefined' ? null : window.location,
+    });
     const label = kind === 'blog' ? 'View Post' : 'View Page';
 
     return React.createElement(
