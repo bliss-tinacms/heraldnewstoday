@@ -13,7 +13,7 @@ const TINA_URL = `https://content.tinajs.io/2.4/content/${CLIENT_ID}/github/${BR
 const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 14);
 const marker = `PAG-${stamp}`;
 
-const cases = [
+const allCases = [
   {
     name: 'Blog', route: 'blog/editorial-independence-and-sustainability', field: 'title', publicPath: '/editorial-independence-and-sustainability/',
     query: `query { blog(relativePath: "editorial-independence-and-sustainability.mdx") { title } }`, value: d => d.blog.title,
@@ -39,6 +39,16 @@ const cases = [
     query: `query { config(relativePath: "config.json") { footer { ctaEyebrow } } }`, value: d => d.config.footer.ctaEyebrow,
   },
 ];
+const requestedCollections = new Set(
+  (process.env.PUBLISHER_GATE_COLLECTIONS || '')
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean),
+);
+const cases = requestedCollections.size
+  ? allCases.filter((item) => requestedCollections.has(item.name.toLowerCase()))
+  : allCases;
+if (!cases.length) throw new Error('PUBLISHER_GATE_COLLECTIONS did not match any configured gate case');
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function backendValue(item) {
