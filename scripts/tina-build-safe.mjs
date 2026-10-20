@@ -48,7 +48,10 @@ try {
       // Regenerate the deployed editor with its configured same-origin proxy,
       // but do not let Tina invoke Astro until the generated server client has
       // been scrubbed of build-time credentials.
-      const generated = run(['build', '--skip-cloud-checks', '--noTelemetry', '-c', 'node --version']);
+      const generated = run(
+        ['build', '--skip-cloud-checks', '--noTelemetry', '-c', 'node --version'],
+        astroRuntimeEnv(),
+      );
       if ((generated.status ?? 1) !== 0) {
         status = generated.status ?? 1;
       } else {
