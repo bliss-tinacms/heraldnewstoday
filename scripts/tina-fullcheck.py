@@ -27,7 +27,9 @@ if not CLIENT_ID or not TOKEN:
     raise SystemExit("TINA-FULLCHECK BLOCKED: Tina client ID and token are required")
 
 TINA_URL = f"https://content.tinajs.io/2.4/content/{CLIENT_ID}/github/{BRANCH}"
-REQUIRED = {"blog", "page", "category", "user", "navigation", "config"}
+EXPECTED_COLLECTIONS = {"blog", "page", "category", "user", "navigation", "config"}
+_required_override = os.environ.get("FULLCHECK_REQUIRED_OVERRIDE", "").strip()
+REQUIRED = {item.strip() for item in _required_override.split(",") if item.strip()} if _required_override else EXPECTED_COLLECTIONS
 SEO_FIELDS = "metaTitle metaDescription ogTitle ogDescription ogImage canonicalUrl noindex nofollow"
 
 
@@ -157,6 +159,9 @@ def main() -> int:
     configured = configured_collections()
     if configured != REQUIRED:
         failures.append(f"collection coverage mismatch: configured={sorted(configured)}, explicitly checked={sorted(REQUIRED)}")
+        print(json.dumps({"site": SITE, "configuredCollections": sorted(configured), "requiredCollections": sorted(REQUIRED), "coverageComplete": False, "failures": failures}, ensure_ascii=False, indent=2))
+        print("TINA_FULLCHECK_OK False")
+        return 1
     data = query_backend()
     for name in sorted(REQUIRED):
         if not data.get(name): failures.append(f"{name}: Tina query returned no document")

@@ -20,6 +20,8 @@
     "permalink:sync": "node scripts/sync-permalinks-to-filenames.mjs",
     "permalink:watch": "node scripts/watch-permalinks-to-filenames.mjs",
     "tina:fullcheck": "python3 scripts/tina-fullcheck.py",
+    "astro:demo-lock": "node scripts/validate-demo-lock.mjs",
+    "publisher:admin-gate": "node scripts/publisher-admin-gate.mjs",
     "visual:capture": "node scripts/capture-demo-lock.mjs"
   },
   "dependencies": {

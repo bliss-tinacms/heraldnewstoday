@@ -8,7 +8,7 @@ import { islands } from '../lib/islands';
 const slug = 'home';
 const page = await getPublicPage(slug);
 const allPages = await listPages();
-const data = page.data?.page ?? allPages.find((entry) => entry?._sys?.filename === slug) ?? null;
+const data = page.data?.page ?? allPages.find((entry: any) => entry?._sys?.filename === slug) ?? null;
 if (!data) return new Response('Not Found', { status: 404 });
 let editData = data;
 try {

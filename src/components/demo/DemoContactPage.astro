@@ -54,8 +54,8 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
   .ffn-demo-contact .ph h1 {
     max-width: 930px !important;
     margin: 26px 0 24px !important;
-    font-size: 72px !important;
-    line-height: .96 !important;
+    font-size: clamp(44px, 6.4vw, 96px) !important;
+    line-height: .98 !important;
   }
 
   .ffn-demo-contact .ph-d {
@@ -76,9 +76,12 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
     padding: 56px !important;
   }
 
-  .ffn-demo-contact .contact-guide-title,
+  .ffn-demo-contact .contact-guide-title {
+    font-size: clamp(32px, 3.8vw, 50px);
+  }
+
   .ffn-demo-contact .contact-form h2 {
-    font-size: 34px;
+    font-size: clamp(28px, 3vw, 38px);
   }
 
   .ffn-demo-contact .contact-form {
@@ -113,7 +116,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
       max-width: 220px !important;
       margin: 0 0 13px !important;
       font-size: 44px !important;
-      line-height: 1.02 !important;
+      line-height: .98 !important;
     }
 
     .ffn-demo-contact .ph-d {
