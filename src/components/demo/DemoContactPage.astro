@@ -8,10 +8,13 @@ const requests = block?.requests || {};
 const requestCards = Array.isArray(requests?.cards) ? requests.cards : [];
 const formAction = formSection.formAction || config?.contactForm?.formspreeEndpoint || '';
 const formConfigured = /^https:\/\/formspree\.io\/f\/[A-Za-z0-9_-]+$/.test(formAction);
-const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAccent = heroWords.pop() || ''; const heroLead = heroWords.join(' ');
+const heroHeadline = String(hero.headline || '').trim();
+const heroAccentMatch = heroHeadline.match(/^(.*?)(the\s+newsroom\.?)(\s*)$/i);
+const heroLead = heroAccentMatch?.[1]?.trimEnd() || heroHeadline;
+const heroAccent = heroAccentMatch?.[2] || '';
 ---
 <main class="ffn-demo ffn-demo-contact">
-  <header class="ph"><div class="w"><div class="ph-in"><div class="ph-k" data-tina-field={tinaField(hero, 'eyebrow')}>{hero.eyebrow}</div><h1 data-tina-field={tinaField(hero, 'headline')}>{heroLead} <span>{heroAccent}</span></h1><p class="ph-d" data-tina-field={tinaField(hero, 'lede')}>{hero.lede}</p></div></div></header>
+  <header class="ph"><div class="w"><div class="ph-in"><div class="ph-k" data-tina-field={tinaField(hero, 'eyebrow')}>{hero.eyebrow}</div><h1 data-tina-field={tinaField(hero, 'headline')}>{heroLead}{heroAccent && <> <span>{heroAccent}</span></>}</h1><p class="ph-d" data-tina-field={tinaField(hero, 'lede')}>{hero.lede}</p></div></div></header>
   <section class="sc contact-main"><div class="w contact-grid">
     <div class="contact-guide">
       <h2 class="contact-guide-title" data-tina-field={tinaField(requests, 'title')}>{requests.title}</h2>
@@ -67,7 +70,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
   .ffn-demo-contact .ph h1 {
     max-width: none !important;
     margin: 0 !important;
-    font-size: clamp(44px, 6.4vw, 96px) !important;
+    font-size: clamp(44px, 7.2vw, 96px) !important;
     line-height: .98 !important;
   }
 
@@ -79,7 +82,8 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
 
   .ffn-demo-contact .ph-in { display:flex; flex-direction:column; gap:28px; padding:72px !important; }
   .ffn-demo-contact .ph-k { align-self:flex-start; width:max-content; display:inline-flex !important; align-items:center; gap:8px !important; margin:0 !important; padding:7px 14px !important; font:700 13px/1.2 var(--san) !important; }
-  .ffn-demo-contact .ph h1 { margin:0 !important; width:100%; max-width:none !important; font:800 clamp(44px,6.4vw,96px)/.98 var(--san) !important; letter-spacing:-.045em !important; }
+  .ffn-demo-contact .ph-k::before { content:'●'; flex:none; font-size:8px; line-height:1; color:var(--green); }
+  .ffn-demo-contact .ph h1 { margin:0 !important; width:100%; max-width:none !important; font:800 clamp(44px,7.2vw,96px)/.98 var(--san) !important; letter-spacing:-.045em !important; }
   .ffn-demo-contact .ph-d { margin:0 !important; width:100%; max-width:none !important; font:400 18px/1.7 var(--san) !important; color:#1f252d !important; }
 
   .ffn-demo-contact .contact-main {

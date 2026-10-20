@@ -23,6 +23,7 @@
     "permalink:watch": "node scripts/watch-permalinks-to-filenames.mjs",
     "tina:fullcheck": "python3 scripts/tina-fullcheck.py",
     "astro:demo-lock": "node scripts/validate-demo-lock.mjs",
+    "astro:demo-lock:negative": "node scripts/test-demo-lock-negative.mjs",
     "publisher:admin-gate": "node scripts/publisher-admin-gate.mjs",
     "menu:verify": "node scripts/verify-responsive-menu.mjs",
     "visual:capture": "node scripts/capture-demo-lock.mjs"
