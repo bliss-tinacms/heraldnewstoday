@@ -212,7 +212,9 @@ function tinaDirectContentApiUrl() {
 }
 
 function tinaApiToken() {
-	return import.meta.env.TINA_TOKEN || process.env.TINA_TOKEN || '';
+	// Keep the server credential runtime-only. Referencing TINA_TOKEN through
+	// import.meta.env lets Vite inline its literal value into the SSR bundle.
+	return process.env.TINA_TOKEN || '';
 }
 
 

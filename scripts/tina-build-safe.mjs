@@ -8,11 +8,24 @@ const run = (args, env = process.env) => spawnSync('pnpm', ['exec', 'tinacms', .
   env,
   shell: process.platform === 'win32',
 });
+const runAstro = (env = process.env) => spawnSync('pnpm', ['exec', 'astro', 'build'], {
+  stdio: 'inherit',
+  env,
+  shell: process.platform === 'win32',
+});
 
 let status = 1;
 try {
   if (local) {
-    status = run(['build', '--local', '--skip-cloud-checks', '--noTelemetry', '-c', 'astro build']).status ?? 1;
+    const generated = run(['build', '--local', '--skip-cloud-checks', '--noTelemetry', '-c', 'node --version']);
+    if ((generated.status ?? 1) !== 0) {
+      status = generated.status ?? 1;
+    } else {
+      // Tina writes the build token into its generated server client. Remove it
+      // before Astro bundles that client into dist/server.
+      sanitizeGeneratedClient();
+      status = runAstro().status ?? 1;
+    }
   } else {
     // A same-origin proxy is correct for the deployed editor, but Tina's schema
     // status endpoint must be checked directly against Tina Cloud first.
@@ -21,7 +34,16 @@ try {
     if ((cloudCheck.status ?? 1) !== 0) {
       status = cloudCheck.status ?? 1;
     } else {
-      status = run(['build', '--skip-cloud-checks', '--noTelemetry', '-c', 'astro build']).status ?? 1;
+      // Regenerate the deployed editor with its configured same-origin proxy,
+      // but do not let Tina invoke Astro until the generated server client has
+      // been scrubbed of build-time credentials.
+      const generated = run(['build', '--skip-cloud-checks', '--noTelemetry', '-c', 'node --version']);
+      if ((generated.status ?? 1) !== 0) {
+        status = generated.status ?? 1;
+      } else {
+        sanitizeGeneratedClient();
+        status = runAstro().status ?? 1;
+      }
     }
   }
 } finally {
