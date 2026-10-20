@@ -33,12 +33,13 @@ const stringBodyHtml = typeof contentBlock?.body === 'string' ? renderMarkdown(c
   </div></header>
   <div class="pg"><div class="w">
     <article data-tina-field={contentBlock ? tinaField(contentBlock, 'body') : undefined}>
-      {typeof contentBlock?.body === 'string' ? (
-        <div set:html={stringBodyHtml} />
-      ) : contentBlock?.body ? (
-        <TinaMarkdown content={contentBlock.body} />
-      ) : (
-        <>
+      <div>
+        {typeof contentBlock?.body === 'string' ? (
+          <Fragment set:html={stringBodyHtml} />
+        ) : contentBlock?.body ? (
+          <TinaMarkdown content={contentBlock.body} />
+        ) : (
+          <>
           <p>This page is the content slot. Everything below is written as plain markdown or rich text — no classes are applied to any element, and the styling comes from the template.</p>
           <h2>A second-level heading</h2>
           <p>Body copy runs at nineteen pixels with generous leading. The opening paragraph is set slightly larger and darker so the page has an entry point, and that treatment applies only to the first paragraph.</p>
@@ -50,8 +51,9 @@ const stringBodyHtml = typeof contentBlock?.body === 'string' ? renderMarkdown(c
             <li>Nothing here carries a class attribute.</li>
           </ul>
           <blockquote><p>Pull quotes sit on a black slab in the display face.</p><cite>Attribution line</cite></blockquote>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </article>
   </div></div>
 </main>
