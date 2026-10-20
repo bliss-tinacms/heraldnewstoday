@@ -31,7 +31,7 @@ const allCases = [
     query: `query { user(relativePath: "admin.json") { role } }`, value: d => d.user.role,
   },
   {
-    name: 'Navigation', route: 'navigation/header', field: 'items.0.label', publicPath: '/', expand: async page => page.getByText('Business', { exact: true }).click(),
+    name: 'Navigation', route: 'navigation/header', field: 'items.0.label', publicPath: '/', expand: async page => page.getByText('Politics', { exact: true }).click(),
     query: `query { navigation(relativePath: "header.json") { items { label href } } }`, value: d => d.navigation.items[0].label,
   },
   {
