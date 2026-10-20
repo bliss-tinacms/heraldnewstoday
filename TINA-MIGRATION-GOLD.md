@@ -59,6 +59,8 @@ Missing destination identity must fail validation. It must never fall back to th
 
 #### 5.0 Verify every provided destination resource before declaring anything missing
 
+> **NON-NEGOTIABLE PROVIDED-RESOURCE RULE:** The user-provided account, organization, repository, branch, API keys, tokens, client ID, credentials, and deployment details are authoritative inputs. Check and use those exact supplied resources. Never assume, infer, substitute, create, rotate, or borrow a value from another account or project. For `heraldnewstoday`, check **`bliss-tinacms’s Organization`**, where the project lives—**not `Bliss Drive’s Organization`**. Verify every value independently and stop on any mismatch instead of guessing.
+
 - **Do not assume from the default account, organization, repository, key, or token shown after login.** Enumerate the organizations available to the supplied Tina account and deliberately select the organization that owns the destination project.
 - For Bliss Drive publisher migrations, check **`bliss-tinacms’s Organization` instead of `Bliss Drive’s Organization`**. The `Bliss Drive` login may be an Admin collaborator while the project is owned by the `bliss-tinacms` organization. An empty project list in `Bliss Drive’s Organization` does **not** prove that the supplied account has no projects.
 - For `heraldnewstoday`, explicitly select **`bliss-tinacms’s Organization`**, where the project lives, and verify the existing **`heraldnewstoday`** project before making any project-access conclusion.
