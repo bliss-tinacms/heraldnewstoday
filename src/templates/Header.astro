@@ -26,7 +26,6 @@ const menuItems = ((navigation?.items ?? []) as NavItem[]).filter((item) => item
 ---
 
 <header class="mh" data-brand-header>
-  <input class="ntog" id="ntog" type="checkbox" aria-label="Toggle navigation menu" />
   <div class="w">
     <div class="mh-in">
       <a href="/" class="mh-logo-link" aria-label={`${siteTitle} home`}>
@@ -34,11 +33,18 @@ const menuItems = ((navigation?.items ?? []) as NavItem[]).filter((item) => item
           ? <img src={logo} alt={siteTitle} data-tina-field={seo ? tinaField(seo, 'logo') : undefined} />
           : <span class="mh-text-logo" data-tina-field={seo ? tinaField(seo, 'title') : undefined}>{siteTitle}</span>}
       </a>
-      <label class="brg" for="ntog">
+      <button
+        class="brg"
+        type="button"
+        aria-label="Toggle navigation menu"
+        aria-controls="primary-navigation"
+        aria-expanded="false"
+        data-menu-toggle
+      >
         <span class="brg-b" aria-hidden="true"><i></i><i></i><i></i></span>
         <span>Menu</span>
-      </label>
-      <nav class="mnav" aria-label={navigation?.title || 'Primary menu'}>
+      </button>
+      <nav id="primary-navigation" class="mnav" aria-label={navigation?.title || 'Primary menu'}>
         {menuItems.map((item) => (
           <a href={item.href || '#'} data-tina-field={tinaField(item, 'label')}>{item.label}</a>
         ))}
@@ -46,3 +52,45 @@ const menuItems = ((navigation?.items ?? []) as NavItem[]).filter((item) => item
     </div>
   </div>
 </header>
+
+<script>
+  function bindResponsiveMenu() {
+    document.querySelectorAll<HTMLElement>('[data-brand-header]').forEach((header) => {
+      if (header.dataset.menuBound === 'true') return;
+      const button = header.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+      const nav = header.querySelector<HTMLElement>('#primary-navigation');
+      if (!button || !nav) return;
+
+      header.dataset.menuBound = 'true';
+      const desktop = window.matchMedia('(min-width: 1025px)');
+      const setOpen = (open: boolean, returnFocus = false) => {
+        header.classList.toggle('is-menu-open', open);
+        button.setAttribute('aria-expanded', String(open));
+        if (!open && returnFocus) button.focus();
+      };
+
+      button.addEventListener('click', () => {
+        setOpen(button.getAttribute('aria-expanded') !== 'true');
+      });
+      nav.addEventListener('click', (event) => {
+        if ((event.target as Element).closest('a')) setOpen(false);
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+          setOpen(false, true);
+        }
+      });
+      document.addEventListener('click', (event) => {
+        if (button.getAttribute('aria-expanded') === 'true' && !header.contains(event.target as Node)) {
+          setOpen(false);
+        }
+      });
+      desktop.addEventListener('change', (event) => {
+        if (event.matches) setOpen(false);
+      });
+    });
+  }
+
+  bindResponsiveMenu();
+  document.addEventListener('astro:page-load', bindResponsiveMenu);
+</script>
