@@ -1,7 +1,7 @@
 {
   "headerNavigation": "src/content/navigation/header.json",
   "footerNavigation": "src/content/navigation/footer.json",
-  "favicon": "https://res.cloudinary.com/kfgnsmek/image/upload/v1792437768/home/favicon.svg",
+  "favicon": "",
   "seo": {
     "title": "Herald News Today",
     "description": "Independent reporting and useful context from New Orleans and beyond.",
