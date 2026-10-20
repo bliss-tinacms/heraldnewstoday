@@ -1,12 +1,33 @@
 {
   "title": "Header Navigation",
   "items": [
-    { "label": "Politics", "href": "/politics/" },
-    { "label": "Business", "href": "/business/" },
-    { "label": "Technology", "href": "/technology/" },
-    { "label": "Health", "href": "/health/" },
-    { "label": "Lifestyle", "href": "/lifestyle/" },
-    { "label": "Culture", "href": "/culture/" },
-    { "label": "Featured", "href": "/featured/" }
+    {
+      "label": "Politics · PAG-20261020194333",
+      "href": "/politics/"
+    },
+    {
+      "label": "Business",
+      "href": "/business/"
+    },
+    {
+      "label": "Technology",
+      "href": "/technology/"
+    },
+    {
+      "label": "Health",
+      "href": "/health/"
+    },
+    {
+      "label": "Lifestyle",
+      "href": "/lifestyle/"
+    },
+    {
+      "label": "Culture",
+      "href": "/culture/"
+    },
+    {
+      "label": "Featured",
+      "href": "/featured/"
+    }
   ]
 }
