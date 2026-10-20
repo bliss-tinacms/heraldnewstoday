@@ -8,9 +8,20 @@ const run = (args, env = process.env) => spawnSync('pnpm', ['exec', 'tinacms', .
   env,
   shell: process.platform === 'win32',
 });
+const astroRuntimeEnv = (env = process.env) => {
+  const clean = { ...env };
+  for (const key of Object.keys(clean)) {
+    // No Tina content token belongs in a compiled browser/server bundle, even
+    // when a hosting environment exposes legacy public-prefixed aliases.
+    if (key === 'TINA_TOKEN' || (/TINA/.test(key) && /TOKEN/.test(key))) {
+      delete clean[key];
+    }
+  }
+  return clean;
+};
 const runAstro = (env = process.env) => spawnSync('pnpm', ['exec', 'astro', 'build'], {
   stdio: 'inherit',
-  env,
+  env: astroRuntimeEnv(env),
   shell: process.platform === 'win32',
 });
 
