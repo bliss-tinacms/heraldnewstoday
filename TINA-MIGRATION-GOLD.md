@@ -53,6 +53,8 @@ Missing destination identity must fail validation. It must never fall back to th
 - Prefer the first explicit environment file in this order: `SITE_ENV_FILE`, application-root `.env`, then current-directory `.env` only when intentionally supported.
 - Explicit destination values must override stale Passenger-inherited values.
 - Validate runtime site URL, Tina client ID, branch, repository, content endpoint, Cloudinary folder, and Formspree configuration as one destination identity contract.
+- Treat the exact deployed application-root environment as a release artifact. Before every restart/cutover, run `SITE_ENV_FILE=/absolute/path/to/live/.env pnpm validate:site` against that file; repeat for every retained rollback runtime that may be activated. A local source `.env`, a build-time environment, or a previous release check cannot certify the live Passenger environment.
+- Require all four non-empty Cloudinary runtime variables together: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, and the site-unique `CLOUDINARY_ROOT_FOLDER`. Missing the root folder is a hard deployment failure even when a direct signed SDK upload/delete succeeds.
 - Keep production `.env` outside release archives, ignored by Git, and mode `0600`.
 
 ### 5. Query the verified Tina destination first
@@ -104,7 +106,9 @@ The renderer and migration adapter must support and test paragraphs, headings, b
 
 Each independent publication requires its own repository, Tina project/branch, canonical origin, Cloudinary root folder, and Formspree form. Prefer a named per-site Cloudinary key even when the account is shared.
 
-- Cloudinary proof: authenticated list plus reversible signed upload/public fetch/delete.
+- Cloudinary preflight: validate the exact active and retained-rollback application-root environments and require the four-variable set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, and `CLOUDINARY_ROOT_FOLDER`; the root folder must be unique to the site.
+- Cloudinary live proof: open a real image field in the authenticated Tina admin, open its Media Manager, require the browser's authenticated `GET /api/cloudinary/media` to return `200`, require no Cloudinary error state, and visibly confirm `Upload`/`New Folder` controls or assets. Then perform a reversible authenticated UI upload, route deletion, and independent post-delete absence check.
+- A direct Cloudinary SDK upload/delete, an unauthenticated expected `401`, or non-empty credentials alone does **not** certify Tina Media Manager. The list route can still fail with `500` when `CLOUDINARY_ROOT_FOLDER` is absent.
 - Formspree proof: read the live DOM action and POST to that exact endpoint only when authorized; require `200 {"ok":true}`.
 - A login page, console access, unauthenticated `401`, or configured string alone is not integration proof.
 
@@ -173,6 +177,7 @@ The repository validator must reject at minimum:
 - a content proxy that rewrites typed Tina data or elevates anonymous requests;
 - malformed/non-origin `SITE_URL` and localhost production metadata;
 - non-unique Cloudinary root folders and inherited Formspree endpoints;
+- a missing `CLOUDINARY_ROOT_FOLDER` in the exact deployed or retained-rollback runtime, or Cloudinary acceptance that omits the authenticated Media Manager list/UI path;
 - missing release/fullcheck commands and this process document.
 
 ## Required command sequence
@@ -205,6 +210,14 @@ pnpm tina:fullcheck
 
 `pnpm tina:fullcheck` is not complete until its authenticated live-admin save/public/restore companion gate has passed for every configured collection.
 
+Immediately before restarting or switching the production application, validate the exact protected host environment (and each retained rollback environment) rather than relying on the local build environment:
+
+```sh
+SITE_ENV_FILE=/absolute/path/to/application-root/.env pnpm validate:site
+```
+
+After restart, reopen a real Tina image field and complete the authenticated Media Manager `GET 200` plus reversible UI upload/delete proof. Do not substitute a direct Cloudinary SDK test.
+
 ## Final release record
 
 Record, without exposing secrets:
@@ -217,6 +230,8 @@ Record, without exposing secrets:
 - source validation and cloud-build results;
 - per-collection Publisher gate results;
 - MULTICAT, SEO, rich-text/media, Cloudinary, and Formspree results;
+- exact active/rollback host-environment validation and the complete four-variable Cloudinary key-presence result (names/status only, never values);
+- authenticated Media Manager list status, visible controls/error absence, reversible UI upload/delete, and post-delete absence;
 - route/asset/metadata/browser results;
 - rollback archive integrity;
 - temporary marker/upload cleanup and exact restoration.

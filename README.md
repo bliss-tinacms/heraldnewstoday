@@ -42,7 +42,9 @@ Set `SITE_URL` to your production URL — it feeds the sitemap, RSS, and OpenGra
 
 ### Before your first deploy: TinaCloud credentials
 
-The default `pnpm build` compiles the CMS against TinaCloud, so it needs the complete per-site runtime configuration. Create a project at [app.tina.io](https://app.tina.io), then provision the site as described below. The required variables include `NEXT_PUBLIC_TINA_CLIENT_ID`, `TINA_TOKEN`, `NEXT_PUBLIC_TINA_BRANCH`, `GITHUB_CONTENT_REPO`, a unique Cloudinary folder and `NEXT_PUBLIC_TINA_CONTENT_API_URL`.
+The default `pnpm build` compiles the CMS against TinaCloud, so it needs the complete per-site runtime configuration. Create a project at [app.tina.io](https://app.tina.io), then provision the site as described below. The required variables include `NEXT_PUBLIC_TINA_CLIENT_ID`, `TINA_TOKEN`, `NEXT_PUBLIC_TINA_BRANCH`, `GITHUB_CONTENT_REPO`, all four Cloudinary variables (`CLOUDINARY_CLOUD_NAME`,
+`CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, and a unique
+`CLOUDINARY_ROOT_FOLDER`), and `NEXT_PUBLIC_TINA_CONTENT_API_URL`.
 
 To build without TinaCloud — a purely local/offline build with no auth — run `pnpm build:local` instead, which skips the cloud checks.
 
@@ -95,7 +97,12 @@ Formspree form, or source-site API key/secret pair.
 7. Complete the logged-in Tina acceptance test: collections and SEO fields,
    existing multi-category selections, a temporary dynamic Category, Save →
    public reflection → exact reversion, navigation references, media upload and
-   cleanup, and the live Formspree endpoint.
+   cleanup, and the live Formspree endpoint. Before restart, run
+   `SITE_ENV_FILE=/absolute/path/to/application-root/.env pnpm validate:site`
+   against the exact active and retained-rollback host environments. For media,
+   require an authenticated Media Manager list request returning `200`, visible
+   controls with no error state, and a reversible UI upload/delete; a direct
+   Cloudinary SDK test does not certify the Tina Media Manager.
 
 Before committing the source boilerplate itself, follow the complete
 `TINA-MIGRATION-GOLD.md` source-release gate and run `pnpm validate:starter`,

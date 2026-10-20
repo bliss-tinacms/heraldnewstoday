@@ -20,11 +20,21 @@ function walk(dir, files = []) {
 }
 
 function loadDotEnv() {
-  const envPath = join(root, '.env');
-  if (!existsSync(envPath)) return;
+  const explicit = String(process.env.SITE_ENV_FILE || '').trim();
+  if (explicit && !existsSync(resolve(explicit))) {
+    fail(`SITE_ENV_FILE does not exist: ${explicit}.`);
+    return;
+  }
+  const candidates = [
+    explicit ? resolve(explicit) : '',
+    join(root, '.env'),
+    join(process.cwd(), '.env'),
+  ].filter(Boolean);
+  const envPath = candidates.find((path, index) => existsSync(path) && candidates.indexOf(path) === index);
+  if (!envPath) return;
   for (const line of readFileSync(envPath, 'utf8').split(/\r?\n/)) {
     const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
-    if (!match || process.env[match[1]]) continue;
+    if (!match) continue;
     process.env[match[1]] = match[2].replace(/^['"]|['"]$/g, '');
   }
 }
@@ -108,6 +118,9 @@ else {
     ['Build and deploy one immutable release', 'atomic immutable deployment gate'],
     ['TINA-FULLCHECK', 'collection-complete fullcheck gate'],
     ['PUBLISHER-ADMIN-GATE', 'authenticated live-admin acceptance gate'],
+    ['CLOUDINARY_ROOT_FOLDER', 'complete Cloudinary runtime environment gate'],
+    ['authenticated Media Manager', 'authenticated Media Manager list/UI acceptance gate'],
+    ['direct Cloudinary SDK', 'direct-SDK false-pass warning'],
     ['exact restoration', 'reversible cleanup gate'],
   ];
   for (const [needle, label] of requiredGates) {
