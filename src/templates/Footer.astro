@@ -33,15 +33,19 @@ const ctaAccent = ctaWords.pop() || '';
 const ctaLead = ctaWords.join(' ');
 ---
 
+{footer.ctaTitle && (
+  <section class="ft-pitch-wrap">
+    <section class="ft-pitch">
+      <div><span class="ft-pitch-eye" data-tina-field={tinaField(footer, 'ctaEyebrow')}>{footer.ctaEyebrow}</span><h2 data-tina-field={tinaField(footer, 'ctaTitle')}>{ctaLead} <span>{ctaAccent}</span></h2><p data-tina-field={tinaField(footer, 'ctaText')}>{footer.ctaText}</p></div>
+      <a href={footer.ctaButtonHref || '/contact/'} data-tina-field={tinaField(footer, 'ctaButtonText')}>{footer.ctaButtonText} <span>↗</span></a>
+    </section>
+  </section>
+)}
 <footer class="ft" data-brand-footer>
-  {footer.ctaTitle && <div class="w ft-pitch-wrap"><section class="ft-pitch">
-    <div><span class="ft-pitch-eye" data-tina-field={tinaField(footer, 'ctaEyebrow')}>{footer.ctaEyebrow}</span><h2 data-tina-field={tinaField(footer, 'ctaTitle')}>{ctaLead} <span>{ctaAccent}</span></h2><p data-tina-field={tinaField(footer, 'ctaText')}>{footer.ctaText}</p></div>
-    <a href={footer.ctaButtonHref || '/contact/'} data-tina-field={tinaField(footer, 'ctaButtonText')}>{footer.ctaButtonText} →</a>
-  </section></div>}
-  <div class="w">
+  <div class="w ft-main">
     <div class="ft-cl">
       {footerLogo ? (
-        <img src={footerLogo} alt={siteTitle} data-tina-field={seo ? tinaField(seo, 'footerLogo') : undefined} loading="lazy" decoding="async" />
+        <a href="/" class="ft-logo-link"><img src={footerLogo} alt={siteTitle} data-tina-field={seo ? tinaField(seo, 'footerLogo') : undefined} loading="lazy" decoding="async" /></a>
       ) : (
         <a class="ft-wordmark" href="/" aria-label={`${siteTitle} home`}>{siteTitle}</a>
       )}
@@ -51,8 +55,6 @@ const ctaLead = ctaWords.join(' ');
         ))}
       </nav>
     </div>
-  </div>
-  <div class="w">
     <div class="ft-lg">
       <p data-tina-field={tinaField(footer, 'copyright')}>{copyright}</p>
       <nav class="ft-fine" aria-label="Footer legal links">

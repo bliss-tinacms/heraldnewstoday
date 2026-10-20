@@ -14,7 +14,7 @@ const heroLead = heroAccentMatch?.[1]?.trimEnd() || heroHeadline;
 const heroAccent = heroAccentMatch?.[2] || '';
 ---
 <main class="ffn-demo ffn-demo-contact">
-  <header class="ph"><div class="w"><div class="ph-in"><div class="ph-k" data-tina-field={tinaField(hero, 'eyebrow')}>{hero.eyebrow}</div><h1 data-tina-field={tinaField(hero, 'headline')}>{heroLead}{heroAccent && <> <span>{heroAccent}</span></>}</h1><p class="ph-d" data-tina-field={tinaField(hero, 'lede')}>{hero.lede}</p></div></div></header>
+  <header class="ph"><div class="w"><div class="ph-k" data-tina-field={tinaField(hero, 'eyebrow')}>{hero.eyebrow}</div><h1 data-tina-field={tinaField(hero, 'headline')}>{heroLead}{heroAccent && <> <span>{heroAccent}</span></>}</h1><p class="ph-d" data-tina-field={tinaField(hero, 'lede')}>{hero.lede}</p></div></header>
   <section class="sc contact-main"><div class="w contact-grid">
     <div class="contact-guide">
       <h2 class="contact-guide-title" data-tina-field={tinaField(requests, 'title')}>{requests.title}</h2>
@@ -61,16 +61,13 @@ const heroAccent = heroAccentMatch?.[2] || '';
 
   .ffn-demo-contact .ph > .w {
     max-width: 1256px !important;
-  }
-
-  .ffn-demo-contact .ph-in {
     padding: 72px !important;
   }
 
   .ffn-demo-contact .ph h1 {
     max-width: none !important;
     margin: 0 !important;
-    font-size: clamp(44px, 7.2vw, 96px) !important;
+    font-size: clamp(44px, 6.4vw, 96px) !important;
     line-height: .98 !important;
   }
 
@@ -80,10 +77,10 @@ const heroAccent = heroAccentMatch?.[2] || '';
     line-height: 1.7 !important;
   }
 
-  .ffn-demo-contact .ph-in { display:flex; flex-direction:column; gap:28px; padding:72px !important; }
+  .ffn-demo-contact .ph > .w { display:flex; flex-direction:column; gap:28px; }
   .ffn-demo-contact .ph-k { align-self:flex-start; width:max-content; display:inline-flex !important; align-items:center; gap:8px !important; margin:0 !important; padding:7px 14px !important; font:700 13px/1.2 var(--san) !important; }
   .ffn-demo-contact .ph-k::before { content:'●'; flex:none; font-size:8px; line-height:1; color:var(--green); }
-  .ffn-demo-contact .ph h1 { margin:0 !important; width:100%; max-width:none !important; font:800 clamp(44px,7.2vw,96px)/.98 var(--san) !important; letter-spacing:-.045em !important; }
+  .ffn-demo-contact .ph h1 { margin:0 !important; width:100%; max-width:none !important; font:800 clamp(44px,6.4vw,96px)/.98 var(--san) !important; letter-spacing:-.045em !important; }
   .ffn-demo-contact .ph-d { margin:0 !important; width:100%; max-width:none !important; font:400 18px/1.7 var(--san) !important; color:#1f252d !important; }
 
   .ffn-demo-contact .contact-main {
@@ -107,7 +104,10 @@ const heroAccent = heroAccentMatch?.[2] || '';
   .ffn-demo-contact .contact-guide-title {
     font-size: clamp(32px, 3.8vw, 50px);
     line-height: 1.02 !important;
+    letter-spacing: -.035em !important;
   }
+
+  .ffn-demo-contact .contact-guide-intro { margin:0 !important; font:400 17px/1.65 var(--san) !important; color:#4f5966 !important; }
 
   .ffn-demo-contact .contact-form h2 {
     font-size: clamp(28px, 3vw, 38px);
@@ -152,7 +152,7 @@ const heroAccent = heroAccentMatch?.[2] || '';
       padding: 16px 16px 0 !important;
     }
 
-    .ffn-demo-contact .ph-in {
+    .ffn-demo-contact .ph > .w {
       padding: 32px !important;
       gap: 20px !important;
     }

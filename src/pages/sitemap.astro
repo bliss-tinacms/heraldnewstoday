@@ -83,7 +83,7 @@ const postLinks: SitemapPostLink[] = (posts as any[])
   canonicalUrl="/sitemap/"
 >
   <main class="ffn-demo ffn-demo-sitemap" aria-labelledby="sitemap-title">
-    <header class="ph sitemap-simple-hero"><div class="w"><div class="ph-in"><h1 id="sitemap-title">Sitemap</h1></div></div></header>
+    <header class="ph sitemap-simple-hero"><div class="w"><h1 id="sitemap-title">Sitemap</h1></div></header>
     <section class="sitemap-simple"><div class="w sitemap-simple-grid">
       <section class="sitemap-simple-col" aria-labelledby="sitemap-pages-title"><h2 id="sitemap-pages-title">Pages</h2>
         {pageLinks.length > 0 ? <ul>{pageLinks.map((item: SitemapLink) => <li><a href={item.url}><span>{item.title}</span><b aria-hidden="true">→</b></a></li>)}</ul> : <p>No public pages found.</p>}
@@ -102,9 +102,6 @@ const postLinks: SitemapPostLink[] = (posts as any[])
 
   .ffn-demo-sitemap .sitemap-simple-hero > .w {
     max-width: 1256px !important;
-  }
-
-  .ffn-demo-sitemap .sitemap-simple-hero .ph-in {
     padding: 72px !important;
   }
 
@@ -121,12 +118,14 @@ const postLinks: SitemapPostLink[] = (posts as any[])
   .ffn-demo-sitemap .sitemap-simple-grid {
     max-width: 1256px !important;
     grid-template-columns: 1fr 1fr;
-    gap: 84px;
+    gap: 48px clamp(40px, 6vw, 96px);
     padding: 0 !important;
   }
 
+  .ffn-demo-sitemap .sitemap-simple-col { display:flex; flex-direction:column; gap:12px; }
+
   .ffn-demo-sitemap .sitemap-simple-col h2 {
-    margin: 0 0 20px;
+    margin: 0;
     font-size: clamp(26px, 2.6vw, 34px);
     line-height: 1.2;
     letter-spacing: -.025em;
@@ -135,8 +134,9 @@ const postLinks: SitemapPostLink[] = (posts as any[])
   .ffn-demo-sitemap .sitemap-simple-col a {
     padding: 16px 0;
     color: #1f252d;
-    font-size: 16px;
-    line-height: 1.35;
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: 600;
   }
 
   .ffn-demo-sitemap .sitemap-simple-col a span {
@@ -154,7 +154,7 @@ const postLinks: SitemapPostLink[] = (posts as any[])
       padding: 16px !important;
     }
 
-    .ffn-demo-sitemap .sitemap-simple-hero .ph-in {
+    .ffn-demo-sitemap .sitemap-simple-hero > .w {
       padding: 32px !important;
     }
 
@@ -168,17 +168,17 @@ const postLinks: SitemapPostLink[] = (posts as any[])
 
     .ffn-demo-sitemap .sitemap-simple-grid {
       grid-template-columns: 1fr;
-      gap: 47px;
+      gap: 48px;
     }
 
     .ffn-demo-sitemap .sitemap-simple-col h2 {
-      margin-bottom: 12px;
+      margin: 0;
       font-size: 26px;
     }
 
     .ffn-demo-sitemap .sitemap-simple-col a {
-      min-height: 60px;
-      padding: 14px 0;
+      min-height: 0;
+      padding: 16px 0;
       font-size: 18px;
     }
   }
