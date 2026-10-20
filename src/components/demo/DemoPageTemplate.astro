@@ -58,22 +58,23 @@ const stringBodyHtml = typeof contentBlock?.body === 'string' ? renderMarkdown(c
 
 <style>
   .ffn-demo-page-template .pt {
-    padding: 28px 0 !important;
+    padding: 28px 0 0 !important;
   }
 
   .ffn-demo-page-template .pt > .w {
     max-width: 1256px !important;
-    padding: 84px 72px !important;
+    padding: 72px !important;
   }
 
   .ffn-demo-page-template .pt h1 {
+    max-width: none !important;
     margin: 0 !important;
     font-size: clamp(44px, 6.4vw, 96px) !important;
     line-height: .98 !important;
   }
 
   .ffn-demo-page-template .pg {
-    padding: 66px 0 0 !important;
+    padding: 72px 0 0 !important;
   }
 
   .ffn-demo-page-template .pg > .w {
@@ -90,12 +91,18 @@ const stringBodyHtml = typeof contentBlock?.body === 'string' ? renderMarkdown(c
     line-height: 1.72 !important;
   }
 
+  .ffn-demo-page-template .pg article > div {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
   .ffn-demo-page-template .pg article :global(p) {
-    margin: 0 0 26px !important;
+    margin: 0 !important;
   }
 
   .ffn-demo-page-template .pg article :global(h2) {
-    margin: 37px 0 12px !important;
+    margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
     color: #0b0d10 !important;
@@ -133,12 +140,10 @@ const stringBodyHtml = typeof contentBlock?.body === 'string' ? renderMarkdown(c
       line-height: 1.75 !important;
     }
 
-    .ffn-demo-page-template .pg article :global(p) {
-      margin-bottom: 28px !important;
-    }
+    .ffn-demo-page-template .pg article :global(p) { margin: 0 !important; }
 
     .ffn-demo-page-template .pg article :global(h2) {
-      margin: 40px 0 14px !important;
+      margin: 0 !important;
       font-size: 26px !important;
       line-height: 1.18 !important;
     }

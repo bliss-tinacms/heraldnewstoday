@@ -8,7 +8,7 @@ export const prerender = false;
 const pages = await listPages();
 const posts = await listBlogs();
 const config = (await getConfig()).data?.config ?? null;
-const siteName = config?.name || '';
+const siteName = config?.seo?.title || 'Herald News Today';
 
 const title = `Sitemap | ${siteName}`;
 const description = `Browse the public pages and latest reporting published by ${siteName}.`;
@@ -97,7 +97,7 @@ const postLinks: SitemapPostLink[] = (posts as any[])
 
 <style>
   .ffn-demo-sitemap .sitemap-simple-hero {
-    padding: 28px 0 !important;
+    padding: 28px 0 0 !important;
   }
 
   .ffn-demo-sitemap .sitemap-simple-hero > .w {
@@ -105,16 +105,17 @@ const postLinks: SitemapPostLink[] = (posts as any[])
   }
 
   .ffn-demo-sitemap .sitemap-simple-hero .ph-in {
-    padding: 84px 72px !important;
+    padding: 72px !important;
   }
 
   .ffn-demo-sitemap .sitemap-simple-hero h1 {
+    max-width: none !important;
     font-size: clamp(44px, 6.4vw, 96px) !important;
     line-height: .98 !important;
   }
 
   .ffn-demo-sitemap .sitemap-simple {
-    padding: 66px 0 0 !important;
+    padding: 72px 0 0 !important;
   }
 
   .ffn-demo-sitemap .sitemap-simple-grid {
@@ -127,6 +128,8 @@ const postLinks: SitemapPostLink[] = (posts as any[])
   .ffn-demo-sitemap .sitemap-simple-col h2 {
     margin: 0 0 20px;
     font-size: clamp(26px, 2.6vw, 34px);
+    line-height: 1.2;
+    letter-spacing: -.025em;
   }
 
   .ffn-demo-sitemap .sitemap-simple-col a {

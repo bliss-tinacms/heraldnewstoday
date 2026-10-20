@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
-const base = (process.env.SITE_URL || 'http://127.0.0.1:4322').replace(/\/$/, '');
+const base = (process.env.TARGET_BASE || process.env.SITE_URL || 'http://127.0.0.1:4406').replace(/\/$/, '');
 const out = path.resolve('evidence/astro-demo-lock');
 fs.mkdirSync(out, { recursive: true });
 const routes = {

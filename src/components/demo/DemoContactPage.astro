@@ -17,10 +17,10 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
       <h2 class="contact-guide-title" data-tina-field={tinaField(requests, 'title')}>{requests.title}</h2>
       <p class="contact-guide-intro" data-tina-field={tinaField(requests, 'intro')}>{requests.intro}</p>
       <div class="contact-notes">
-        {requestCards.map((card: any, index: number) => <details class="contact-note" open={index === 0}>
-          <summary><span data-tina-field={tinaField(card, 'title')}>{card.title}</span><i aria-hidden="true"></i></summary>
-          <p data-tina-field={tinaField(card, 'text')}>{card.text}</p>
-        </details>)}
+        {requestCards.map((card: any, index: number) => <div class="contact-note" data-open={index === 0 ? 'true' : 'false'}>
+          <button type="button" aria-expanded={index === 0 ? 'true' : 'false'} aria-controls={`contact-note-${index}`}><span data-tina-field={tinaField(card, 'title')}>{card.title}</span><i aria-hidden="true">+</i></button>
+          <p id={`contact-note-${index}`} hidden={index !== 0} data-tina-field={tinaField(card, 'text')}>{card.text}</p>
+        </div>)}
       </div>
     </div>
     <form class="contact-form" method="POST" action={formConfigured ? formAction : undefined}>
@@ -28,19 +28,32 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
       <p data-tina-field={tinaField(formSection, 'description')}>{formSection.description}</p>
       <input type="hidden" name="_subject" value={formSection.subject || config?.contactForm?.subject || ''} />
       <div class="contact-fields">
-        <div class="fr"><label class="fl" for="f-name">Name</label><input class="fi" id="f-name" name="full_name" type="text" required /></div>
-        <div class="fr"><label class="fl" for="f-phone">Phone</label><input class="fi" id="f-phone" name="phone" type="tel" /></div>
-        <div class="fr contact-email"><label class="fl" for="f-email">Email</label><input class="fi" id="f-email" name="email" type="email" required /></div>
-        <div class="fr contact-message"><label class="fl" for="f-msg">Message</label><textarea class="fi" id="f-msg" name="message" required></textarea></div>
+        <label class="fr"><span class="fl">Name</span><input class="fi" name="name" type="text" autocomplete="name" required /></label>
+        <label class="fr"><span class="fl">Phone</span><input class="fi" name="phone" type="tel" autocomplete="tel" /></label>
+        <label class="fr contact-email"><span class="fl">Email</span><input class="fi" name="email" type="email" autocomplete="email" required /></label>
+        <label class="fr contact-message"><span class="fl">Message</span><textarea class="fi" name="message" rows="6" required></textarea></label>
       </div>
-      <div class="contact-form-foot"><p data-tina-field={tinaField(formSection, 'note')}>{formSection.note}</p><button type="submit" disabled={!formConfigured} aria-disabled={!formConfigured} data-tina-field={tinaField(formSection, 'buttonText')}>{formSection.buttonText}</button></div>
+      <div class="contact-form-foot"><p data-tina-field={tinaField(formSection, 'note')}>{formSection.note}</p><button type="submit" disabled={!formConfigured} aria-disabled={!formConfigured}><span data-tina-field={tinaField(formSection, 'buttonText')}>{formSection.buttonText}</span> <span aria-hidden="true">↗</span></button></div>
     </form>
   </div></section>
 </main>
 
+<script>
+  document.querySelectorAll<HTMLElement>('.ffn-demo-contact .contact-note').forEach((note) => {
+    const button = note.querySelector<HTMLButtonElement>(':scope > button');
+    const panel = note.querySelector<HTMLElement>(':scope > p');
+    button?.addEventListener('click', () => {
+      const open = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', String(open));
+      note.dataset.open = String(open);
+      if (panel) panel.hidden = !open;
+    });
+  });
+</script>
+
 <style>
   .ffn-demo-contact .ph {
-    padding: 28px 0 !important;
+    padding: 28px 0 0 !important;
   }
 
   .ffn-demo-contact .ph > .w {
@@ -52,29 +65,35 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
   }
 
   .ffn-demo-contact .ph h1 {
-    max-width: 930px !important;
-    margin: 26px 0 24px !important;
+    max-width: none !important;
+    margin: 0 !important;
     font-size: clamp(44px, 6.4vw, 96px) !important;
     line-height: .98 !important;
   }
 
   .ffn-demo-contact .ph-d {
-    max-width: 920px !important;
-    font-size: 17px !important;
-    line-height: 1.65 !important;
+    max-width: none !important;
+    font-size: 18px !important;
+    line-height: 1.7 !important;
   }
 
   .ffn-demo-contact .contact-main {
-    padding: 56px 0 0 !important;
+    padding: clamp(64px, 7vw, 104px) 0 0 !important;
   }
 
   .ffn-demo-contact .contact-grid {
     width: 1256px;
-    max-width: calc(100% - 56px) !important;
-    grid-template-columns: minmax(0, 493px) minmax(0, 596px) !important;
-    gap: 55px !important;
+    max-width: calc(100% - 64px) !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: clamp(32px, 5vw, 64px) !important;
     padding: 56px !important;
+    border-radius: 36px !important;
   }
+
+  .ffn-demo-contact .contact-guide { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+  .ffn-demo-contact .contact-guide-title,
+  .ffn-demo-contact .contact-guide-intro { margin: 0 !important; }
 
   .ffn-demo-contact .contact-guide-title {
     font-size: clamp(32px, 3.8vw, 50px);
@@ -85,9 +104,18 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
   }
 
   .ffn-demo-contact .contact-form {
+    flex: 1.2 1 460px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
     padding: 44px;
     border: 0;
+    border-radius: 28px;
   }
+
+  .ffn-demo-contact .contact-form > h2,
+  .ffn-demo-contact .contact-form > p { margin: 0 !important; }
 
   .ffn-demo-contact .contact-fields {
     grid-template-columns: 1fr 1fr;
@@ -100,7 +128,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
   }
 
   .ffn-demo-contact .contact-form textarea.fi {
-    min-height: 205px !important;
+    min-height: 170px !important;
   }
 
   @media (max-width: 1023px) {
@@ -113,8 +141,8 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
     }
 
     .ffn-demo-contact .ph h1 {
-      max-width: 220px !important;
-      margin: 0 0 13px !important;
+      max-width: none !important;
+      margin: 0 !important;
       font-size: 44px !important;
       line-height: .98 !important;
     }
@@ -125,7 +153,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
     }
 
     .ffn-demo-contact .contact-main {
-      padding: 48px 0 0 !important;
+      padding: 64px 0 0 !important;
     }
 
     .ffn-demo-contact .contact-grid {
@@ -134,7 +162,7 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
       margin: 0 16px;
       grid-template-columns: 1fr !important;
       gap: 32px !important;
-      padding: 24px !important;
+      padding: 28px !important;
     }
 
     .ffn-demo-contact .contact-guide-title,
@@ -148,21 +176,17 @@ const heroWords = String(hero.headline || '').trim().split(/\s+/); const heroAcc
       line-height: 1.6;
     }
 
-    .ffn-demo-contact .contact-note {
-      padding: 20px 22px !important;
-    }
-
     .ffn-demo-contact .contact-note p {
-      font-size: 18px !important;
-      line-height: 1.65 !important;
+      font-size: 17px !important;
+      line-height: 1.7 !important;
     }
 
-    .ffn-demo-contact .contact-note summary span {
-      font-size: 18px !important;
+    .ffn-demo-contact .contact-note > button span {
+      font-size: 19px !important;
     }
 
     .ffn-demo-contact .contact-form {
-      padding: 24px !important;
+      padding: 28px !important;
       border: 0 !important;
     }
 
