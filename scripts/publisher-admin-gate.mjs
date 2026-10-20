@@ -27,7 +27,7 @@ const allCases = [
     query: `query { category(relativePath: "Business.json") { title } }`, value: d => d.category.title,
   },
   {
-    name: 'Users', route: 'user/admin', field: 'role', publicPath: '/author/admin/',
+    name: 'Users', gateId: 'AUTHOR-ISLAND-EDITABILITY-001', route: 'user/admin', field: 'role', publicPath: '/author/admin/',
     query: `query { user(relativePath: "admin.json") { role } }`, value: d => d.user.role,
   },
   {
@@ -125,7 +125,7 @@ try {
       await clickSave(page);
       const restoredProof = await waitForProof(item, original, marker);
       changed = false;
-      results.push({ collection: item.name, document: item.route, field: item.field, authenticatedEdit: true, saveBackendPublic: changedProof, exactRestore: restoredProof, status: 'PASS' });
+      results.push({ collection: item.name, gateId: item.gateId || null, document: item.route, field: item.field, authenticatedEdit: true, saveBackendPublic: changedProof, exactRestore: restoredProof, status: 'PASS' });
     } finally {
       if (changed && original) {
         const field = page.locator(`[name="${item.field}"]`);

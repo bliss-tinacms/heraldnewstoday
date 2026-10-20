@@ -117,6 +117,43 @@ def fetch_route(path: str, expected_status: int = 200) -> dict:
     return {"status": response.status_code, "cache": response.headers.get("cf-cache-status"), "html": unescape(response.text), "head": parser}
 
 
+def probe_island(name: str, slug: str, expected_key: str, failures: list[str], require_primary: bool = True) -> dict:
+    path = f"/tina-island/{name}?slug={slug}"
+    response = requests.post(
+        f"{SITE}{path}",
+        headers={"Content-Type": "application/x-tina-preview+json", "X-Tina-Prime": "1", "Cache-Control": "no-cache"},
+        data="{}",
+        timeout=45,
+    )
+    if response.status_code != 200:
+        failures.append(f"island.{name}: expected HTTP 200, got {response.status_code}")
+        return {"status": response.status_code, "forms": 0, "queryLength": 0, "variables": {}, "dataKeys": [], "primaryForms": 0}
+    tags = re.findall(r"<[^>]*\bdata-tina-form=\"[^\"]+\"[^>]*>", response.text, flags=re.I)
+    forms = []
+    for tag in tags:
+        match = re.search(r"\bdata-tina-form=\"([^\"]+)\"", tag, flags=re.I)
+        if not match:
+            continue
+        try:
+            forms.append((json.loads(unescape(match.group(1))), bool(re.search(r"\bdata-tina-primary(?:\s|=|>)", tag, flags=re.I))))
+        except Exception as error:
+            failures.append(f"island.{name}: invalid data-tina-form JSON: {error}")
+    if len(forms) != 1:
+        failures.append(f"island.{name}: expected exactly one form, got {len(forms)}")
+    form, primary = forms[0] if forms else ({}, False)
+    query = str(form.get("query") or "")
+    variables = form.get("variables") or {}
+    data = form.get("data") or {}
+    if not form.get("id"): failures.append(f"island.{name}: missing stable form id")
+    if len(query) <= 100: failures.append(f"island.{name}: query length {len(query)} is not substantial")
+    if variables.get("relativePath") != slug + (".mdx" if expected_key in {"page", "blog"} else ".json"):
+        failures.append(f"island.{name}: wrong variables {variables!r}")
+    if expected_key not in data: failures.append(f"island.{name}: missing authoritative {expected_key} data")
+    primary_count = sum(1 for _, is_primary in forms if is_primary)
+    if require_primary and primary_count != 1: failures.append(f"island.{name}: expected exactly one primary form, got {primary_count}")
+    return {"status": response.status_code, "forms": len(forms), "formId": bool(form.get("id")), "queryLength": len(query), "variables": variables, "dataKeys": sorted(data), "primaryForms": primary_count}
+
+
 def values(items: list[dict], key: str, name: str) -> list[str]:
     return [str(item.get("content") or "") for item in items if item.get(key) == name]
 
@@ -171,7 +208,19 @@ def main() -> int:
         "blog": fetch_route("/editorial-independence-and-sustainability/"),
         "category": fetch_route("/business/"),
         "user": fetch_route("/author/admin/"),
+        "userAlias": fetch_route("/blog/author/admin/"),
         "notFound": fetch_route("/__tina_fullcheck_missing__/", 404),
+    }
+    for route_name in ("user", "userAlias"):
+        if "/tina-island/author" not in routes[route_name]["html"]:
+            failures.append(f"AUTHOR-ISLAND-EDITABILITY-001 {route_name}: canonical author island URL absent")
+    islands = {
+        "page": probe_island("page", "home", "page", failures),
+        "blog": probe_island("blog", "editorial-independence-and-sustainability", "blog", failures),
+        "category": probe_island("category", "Business", "category", failures),
+        "AUTHOR-ISLAND-EDITABILITY-001": probe_island("author", "admin", "user", failures),
+        "global": probe_island("global", "config", "config", failures, require_primary=False),
+        "global-footer": probe_island("global-footer", "config", "config", failures, require_primary=False),
     }
     config, page, blog, category, user = data["config"], data["page"], data["blog"], data["category"], data["user"]
     site_title = config.get("seo", {}).get("title") or "Herald News Today"
@@ -226,7 +275,17 @@ def main() -> int:
     for field in ("title", "description", "buttonText"):
         assert_text(f"config.notFound.{field}", routes["notFound"]["html"], (config.get("notFound") or {}).get(field) or "", failures)
 
-    report = {"site": SITE, "configuredCollections": sorted(configured), "requiredCollections": sorted(REQUIRED), "coverageComplete": configured == REQUIRED, "collections": {name: {"backendDocument": data.get(name, {}).get("_sys", {}).get("filename"), "status": "PASS" if data.get(name) else "FAIL"} for name in sorted(REQUIRED)}, "routes": {name: {"status": route["status"], "cache": route["cache"]} for name, route in routes.items()}, "seo": seo_results, "failures": failures}
+    report = {
+        "site": SITE,
+        "configuredCollections": sorted(configured),
+        "requiredCollections": sorted(REQUIRED),
+        "coverageComplete": configured == REQUIRED,
+        "collections": {name: {"backendDocument": data.get(name, {}).get("_sys", {}).get("filename"), "status": "PASS" if data.get(name) else "FAIL"} for name in sorted(REQUIRED)},
+        "routes": {name: {"status": route["status"], "cache": route["cache"]} for name, route in routes.items()},
+        "islands": islands,
+        "seo": seo_results,
+        "failures": failures,
+    }
     print(json.dumps(report, ensure_ascii=False, indent=2))
     print(f"TINA_FULLCHECK_OK {not failures}")
     return 0 if not failures else 1

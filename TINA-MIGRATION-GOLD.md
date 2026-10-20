@@ -143,6 +143,10 @@ Coverage must be derived from the configured Tina collection set and equal the e
 
 Also test editable SEO title/description/canonical/robots/Open Graph/Twitter/JSON-LD as applicable; one Page and one Blog article; `MULTICAT-LOCK`; author resolution; Navigation; header/footer logos; rich-text image upload; Cloudinary; and Formspree when authorized. Restoration outranks starting another test. Any incomplete login, save, public mapping, cleanup, or restoration is `BLOCKED`, not done.
 
+#### AUTHOR-ISLAND-EDITABILITY-001
+
+Both canonical `/author/<slug>/` and editor-alias `/blog/author/<slug>/` routes must expose the same `/tina-island/author?slug=<slug>` contract. Its preview POST must contain exactly one stable form ID, a substantial generated User query, `variables.relativePath === "<slug>.json"`, an authoritative `user` data object, and exactly one primary form. A rendered author archive or HTTP 200 with `query: ""`, `variables: {}`, or only `_content_source` fails this gate. Publisher/Admin acceptance must edit one visible User field, prove authenticated backend and cache-busted public reflection, restore through the sidebar, and prove exact backend/public restoration and marker absence.
+
 ### 14. Verify routes, metadata, assets, and visuals
 
 After deployment verify:

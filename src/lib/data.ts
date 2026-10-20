@@ -547,54 +547,36 @@ async function getLiveUser(slug: string) {
 
 export const getEditableUser = async (slug: string) => {
 	const relativePath = slug.endsWith('.json') ? slug : `${slug}.json`;
-	try {
-		return await requestWithMetadata(client.queries.user({ relativePath }), { priority: 'primary' });
-	} catch (error) {
-		const live = await fetchLiveTinaResult<{ user: any }>(UserDocument, { relativePath });
-		if (live?.data?.user) {
-			return requestWithMetadata(Promise.resolve({
-				data: live.data,
-				query: UserDocument,
-				variables: { relativePath },
-			}), { priority: 'primary' });
-		}
-		const localUser = readLocalJson('user', relativePath);
-		if (localUser) {
-			return requestWithMetadata(Promise.resolve({
-				data: { user: localUser as any },
-				query: UserDocument,
-				variables: { relativePath },
-			}), { priority: 'primary' });
-		}
-		throw error;
+	// AUTHOR-ISLAND-EDITABILITY-001: resolve Tina Cloud before metadata
+	// enrichment. requestWithMetadata intentionally converts a rejected
+	// unresolved generated-client promise into a hollow HTTP-200 form, so a
+	// surrounding catch cannot repair query="" / variables={} afterwards.
+	const live = await fetchLiveTinaResult<{ user: any }>(UserDocument, { relativePath });
+	if (live?.data?.user) {
+		return requestWithMetadata(Promise.resolve(live), { priority: 'primary' });
 	}
+
+	const generated = await client.queries.user({ relativePath });
+	if (!generated?.data?.user || !generated.query || !generated.variables) {
+		throw new Error(`Author editor query returned no authoritative Tina document: ${relativePath}`);
+	}
+	return requestWithMetadata(generated, { priority: 'primary' });
 };
 
 export const getUser = (slug: string) => getLiveUser(slug);
 
 export const getEditableCategory = async (slug: string) => {
 	const relativePath = slug.endsWith('.json') ? slug : `${slug}.json`;
-	try {
-		return await requestWithMetadata(client.queries.category({ relativePath }), { priority: 'primary' });
-	} catch (error) {
-		const live = await fetchLiveTinaResult<{ category: any }>(CategoryDocument, { relativePath });
-		if (live?.data?.category) {
-			return requestWithMetadata(Promise.resolve({
-				data: live.data,
-				query: CategoryDocument,
-				variables: { relativePath },
-			}), { priority: 'primary' });
-		}
-		const localCategory = readLocalJson('category', relativePath);
-		if (localCategory) {
-			return requestWithMetadata(Promise.resolve({
-				data: { category: localCategory as any },
-				query: CategoryDocument,
-				variables: { relativePath },
-			}), { priority: 'primary' });
-		}
-		throw error;
+	const live = await fetchLiveTinaResult<{ category: any }>(CategoryDocument, { relativePath });
+	if (live?.data?.category) {
+		return requestWithMetadata(Promise.resolve(live), { priority: 'primary' });
 	}
+
+	const generated = await client.queries.category({ relativePath });
+	if (!generated?.data?.category || !generated.query || !generated.variables) {
+		throw new Error(`Category editor query returned no authoritative Tina document: ${relativePath}`);
+	}
+	return requestWithMetadata(generated, { priority: 'primary' });
 };
 
 export async function getCategory(slug: string) {
