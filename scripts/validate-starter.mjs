@@ -7,6 +7,25 @@ const strictRuntime = process.argv.includes('--runtime');
 const failures = [];
 const fail = (message) => failures.push(message);
 const read = (path) => readFileSync(join(root, path), 'utf8');
+const incidentIds = Array.from({ length: 54 }, (_, index) => `HNT-${String(index + 1).padStart(3, '0')}`);
+
+function validateIncidentLedger(document, label) {
+  if (!document.includes('LATEST-MIGRATION-INCIDENT-LEDGER')) fail(`${label} is missing the latest-migration incident ledger.`);
+  for (const heading of ['Problem encountered', 'Solution applied', 'Permanent prevention', 'Evidence']) {
+    if (!document.includes(heading)) fail(`${label} incident ledger is missing column ${heading}.`);
+  }
+  const rows = document.split(/\r?\n/).filter((line) => /^\| HNT-\d{3} \|/.test(line));
+  for (const id of incidentIds) {
+    const matches = rows.filter((line) => line.startsWith(`| ${id} |`));
+    if (matches.length !== 1) fail(`${label} must contain exactly one complete incident row ${id}; found ${matches.length}.`);
+    else {
+      const cells = matches[0].split('|').slice(1, -1).map((cell) => cell.trim());
+      if (cells.length !== 5 || cells.some((cell) => !cell)) fail(`${label} incident row ${id} must contain non-empty ID, problem, solution, prevention and evidence cells.`);
+    }
+  }
+  const unexpected = rows.map((line) => line.split('|')[1].trim()).filter((id) => !incidentIds.includes(id));
+  if (unexpected.length) fail(`${label} contains unexpected incident rows: ${unexpected.join(', ')}.`);
+}
 
 function walk(dir, files = []) {
   for (const name of readdirSync(dir)) {
@@ -108,6 +127,7 @@ if (!existsSync(join(root, 'scripts/test-demo-lock-preflight-negative.mjs'))) fa
 if (!existsSync(join(root, 'TINA-MIGRATION-GOLD.md'))) fail('TINA-MIGRATION-GOLD.md is required as the canonical migration and acceptance process.');
 else {
   const processDocument = read('TINA-MIGRATION-GOLD.md');
+  validateIncidentLedger(processDocument, 'TINA-MIGRATION-GOLD.md');
   const requiredGates = [
     ['Source-release ready', 'source-release and cloud/live acceptance separation'],
     ['Preserve exact demo design', 'exact-demo design and CSS-isolation gate'],
@@ -171,6 +191,7 @@ else {
 if (!existsSync(join(root, 'ASTRO-DEMO-LOCK.md'))) fail('ASTRO-DEMO-LOCK.md is required as the repository-level exact-demo contract.');
 else {
   const demoLock = read('ASTRO-DEMO-LOCK.md');
+  validateIncidentLedger(demoLock, 'ASTRO-DEMO-LOCK.md');
   const requiredDemoControls = [
     'NO-PREMATURE-COMPLETION', 'AUTHORITY-FIRST', 'GATE-SELF-TEST', 'PRODUCTION-DATA-SHAPE',
     'DESTINATION-ENV-ONLY', 'FRESH-PROCESS-AND-SHUTDOWN', 'SERIAL-BROWSER-GATES',
@@ -224,6 +245,10 @@ for (const marker of ['duplicate-manifest-path', 'non-normalized-manifest-path',
 for (const mutation of ['duplicate-manifest-path', 'non-normalized-manifest-path', 'fixture-hash-drift', 'unmanifested-fixture', 'fixture-symlink']) {
   if (!demoLockPreflightNegative.includes(mutation)) fail(`ASTRO-DEMO-LOCK negative suite is missing fixture-integrity mutation ${mutation}.`);
 }
+for (const marker of ['LATEST-MIGRATION-INCIDENT-LEDGER', 'missing-incident-ledger-row', 'length: 54']) {
+  if (!demoLockPreflight.includes(marker)) fail(`ASTRO-DEMO-LOCK preflight is missing incident-ledger enforcement marker ${marker}.`);
+}
+if (!demoLockPreflightNegative.includes('missing-incident-ledger-row')) fail('ASTRO-DEMO-LOCK negative suite is missing the incident-ledger row-removal mutation.');
 const astroConfig = read('astro.config.mjs');
 if (!/loadEnv\s*\(/.test(astroConfig) || !/configuredEnv\(['"]SITE_URL['"]\)/.test(astroConfig)) {
   fail('astro.config.mjs must load SITE_URL from the active .env mode before generating absolute URLs.');

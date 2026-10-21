@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 
 const cases = [
   { mutation: 'missing-control', expected: 'missing-control:NO-PREMATURE-COMPLETION' },
+  { mutation: 'missing-incident-ledger-row', expected: 'missing-incident-row:ASTRO-DEMO-LOCK.md:HNT-001:found-0' },
   { mutation: 'authority-manifest', expected: 'authority-manifest' },
   { mutation: 'positive-browser-validator', expected: 'positive-browser-validator' },
   { mutation: 'controlled-negative-suite', expected: 'controlled-negative-suite' },

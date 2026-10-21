@@ -22,6 +22,7 @@ const requiredControls = [
   'DUAL-ARTIFACT-SECRET-SCAN', 'EXACT-SHA-PACKAGE-POINTER-PARITY', 'FINAL-POST-CLEANUP-ACCEPTANCE',
   'EXECUTABLE-LOCK-READINESS',
 ];
+const incidentIds = Array.from({ length: 54 }, (_, index) => `HNT-${String(index + 1).padStart(3, '0')}`);
 const missing = [];
 const failures = [];
 const passes = [];
@@ -44,6 +45,21 @@ function walkFiles(path) {
     return entry.isDirectory() ? walkFiles(child) : [child];
   });
 }
+function validateIncidentLedger(document, label) {
+  if (!document.includes('LATEST-MIGRATION-INCIDENT-LEDGER')) failures.push(`missing-incident-ledger:${label}`);
+  for (const heading of ['Problem encountered', 'Solution applied', 'Permanent prevention', 'Evidence']) {
+    if (!document.includes(heading)) failures.push(`missing-incident-column:${label}:${heading}`);
+  }
+  const rows = document.split(/\r?\n/).filter((line) => /^\| HNT-\d{3} \|/.test(line));
+  for (const id of incidentIds) {
+    const matches = rows.filter((line) => line.startsWith(`| ${id} |`));
+    if (matches.length !== 1) failures.push(`missing-incident-row:${label}:${id}:found-${matches.length}`);
+    else {
+      const cells = matches[0].split('|').slice(1, -1).map((cell) => cell.trim());
+      if (cells.length !== 5 || cells.some((cell) => !cell)) failures.push(`malformed-incident-row:${label}:${id}`);
+    }
+  }
+}
 
 markRequired(lockPath, 'lock-document');
 markRequired(goldPath, 'gold-document');
@@ -54,12 +70,16 @@ markRequired(negativePath, 'controlled-negative-suite');
 let controlsPresent = 0;
 if (existsSync(lockPath)) {
   let lock = readFileSync(lockPath, 'utf8');
-  if (mutation === 'missing-control') lock = lock.replace(requiredControls[0], 'REMOVED-CONTROL');
+  if (mutation === 'missing-control') lock = lock.replaceAll(requiredControls[0], 'REMOVED-CONTROL');
+  if (mutation === 'missing-incident-ledger-row') lock = lock.replace('| HNT-001 |', '| REMOVED-INCIDENT |');
+  const controlSection = lock.split('## Mandatory controls')[1]?.split('## Transport gates inherited from GOLD')[0] || '';
   for (const control of requiredControls) {
-    if (!lock.includes(control)) failures.push(`missing-control:${control}`);
+    if (!controlSection.includes(control)) failures.push(`missing-control:${control}`);
     else controlsPresent += 1;
   }
+  validateIncidentLedger(lock, 'ASTRO-DEMO-LOCK.md');
 }
+if (existsSync(goldPath)) validateIncidentLedger(readFileSync(goldPath, 'utf8'), 'TINA-MIGRATION-GOLD.md');
 
 let fixtureManifestSha256 = null;
 let checkedFixtures = 0;

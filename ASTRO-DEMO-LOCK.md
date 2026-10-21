@@ -37,6 +37,69 @@ A build, SHA, `RELEASE_COMMIT`, HTTP `200`, screenshot taken at the wrong viewpo
 
 `AUTHENTICATED-GIT-PREFLIGHT`, `PROJECT-SECRET-MAP`, `CPANEL-ENDPOINT-NORMALIZATION` and `CPANEL-RESPONSE-NORMALIZATION` remain transport controls in `TINA-MIGRATION-GOLD.md`. If any prevents live proof, this lock is `BLOCKED`.
 
+## LATEST-MIGRATION-INCIDENT-LEDGER — Herald News Today
+
+The complete `HNT-001` through `HNT-054` problem → solution → prevention → evidence matrix in `TINA-MIGRATION-GOLD.md` is incorporated into this lock by ID and is mandatory here, including transport rows because any transport failure blocks honest live visual proof. The repository validator and lock preflight must require every ID in both documents and must verify the four-column semantics below. This condensed lock ledger preserves the full incident set without weakening any GOLD wording.
+
+| ID | Problem encountered | Solution applied | Permanent prevention | Evidence |
+|---|---|---|---|---|
+| HNT-001 | Wrong default Tina organization made the supplied project appear missing. | Selected and verified the actual owner organization/project/repository/branch. | Enumerate and verify supplied identities; never substitute resources. | `97df6be`, `9e09e20`, `c4d971a` |
+| HNT-002 | SSR runtime packages were development-only. | Moved required packages to production dependencies. | Production-only install and target-Node CMS-route startup. | `b606ff3` |
+| HNT-003 | Fullcheck used stale routes and incorrect rendering comparisons. | Aligned canonical routes and field-specific comparison semantics. | Route-map-derived checks with text/asset negative cases. | `5d62c19` |
+| HNT-004 | Tina token could be compiled into the server bundle. | Split generation/build, sanitized first and used `process.env`. | Two-stage token-free build plus byte scan. | `c30f0c4` |
+| HNT-005 | Manual Page query omitted current schema fields. | Updated the complete fragment. | Schema-to-query field parity and non-empty live output checks. | `2f48557` |
+| HNT-006 | Publisher restore was not byte-exact. | Restored the original bytes. | Baseline/restoration hashes and unrelated-drift proof. | `1c76788` |
+| HNT-007 | Responsive navigation breakpoint/interactions were broken or unproven. | Fixed CSS/behavior and added pointer/keyboard tests. | Breakpoint, ARIA, focus, resize and overflow interaction matrix. | `7c0aa23` |
+| HNT-008 | Template and collection acceptance coverage was incomplete. | Expanded public-family and collection gates. | Complete inventory with positive and negative case per family/collection. | `68f3b27`, `ca65df7` |
+| HNT-009 | Author/category edit islands lacked complete proof. | Added queries, fullcheck and Publisher cases. | Authenticated island and reversible public save proof per collection. | `8eb3a7c` |
+| HNT-010 | Cloudinary could false-pass without full runtime/UI proof. | Required all runtime values and Media Manager list/upload/delete. | Exact active/rollback env plus UI proof; SDK-only forbidden. | `a96a2b6` |
+| HNT-011 | Homepage drifted from source. | Restored exact structure/CSS. | Immutable authority and desktop/mobile DOM/geometry/screenshots. | `2386fae` |
+| HNT-012 | “View on site” generated wrong routes. | Added canonical mapper/tests. | Deterministic collection route tests. | `2386fae` |
+| HNT-013 | Informational pages were redesigned instead of source-locked. | Restored exact wrappers/assets/geometry. | Per-family desktop/mobile authority. | `496c9c9` |
+| HNT-014 | Legacy article URL was lost. | Added one tested canonical alias. | Pre-cutover URL inventory and exact alias tests. | `496c9c9` |
+| HNT-015 | Contact-specific accent/geometry defects escaped generic checks. | Added exact DOM/geometry/image assertions. | Template-specific positive and negative locks. | `e6a5828` |
+| HNT-016 | Sticky rail declaration did not prove behavior. | Added real behavior and responsive TOC checks. | Settled real-wheel and breakpoint contract. | `e6a5828`, `dabaa37` |
+| HNT-017 | Publisher navigation selector was brittle. | Switched to the stable baseline row. | Unique field/baseline-derived selectors only. | `781d4c9` |
+| HNT-018 | Authority corpus was partial/self-referential. | Added complete hashed source/DOM/screenshot fixtures. | Separate no-extra-file, non-symlinked authority verified first. | `dabaa37`, `369482e` |
+| HNT-019 | Cloud rich text changed body hierarchy. | Kept structural wrapper outside data-shape branches. | Same wrapper contract for object/string/absent/fallback. | `4b175f5` |
+| HNT-020 | Token aliases leaked into generated admin/archive. | Stripped all Tina-token aliases and rescanned final/live artifacts. | All-stage alias stripping plus source/dist/archive/live scans. | `dff4174`, `945ca94` |
+| HNT-021 | Intermediate checkpoints looked complete. | Continued through final live acceptance. | `NO-PREMATURE-COMPLETION`. | `ce4a025` |
+| HNT-022 | Authority was not frozen first. | Named and hashed the source. | `AUTHORITY-FIRST`. | `dabaa37`, `ce4a025` |
+| HNT-023 | Validator could not prove it detected claimed defects. | Added intended-failure mutations. | `GATE-SELF-TEST`. | `e6a5828`, `dabaa37` |
+| HNT-024 | Local data shape hid Cloud defects. | Tested production shapes and precedence. | `PRODUCTION-DATA-SHAPE`; `CLOUD-SOURCE-PRECEDENCE`. | `4b175f5`, `ce4a025` |
+| HNT-025 | Inherited env could select another Tina project. | Used clean destination-only child env. | `DESTINATION-ENV-ONLY`. | `ce4a025` |
+| HNT-026 | Stale server/shutdown noise confused verification. | Proved process identity and orderly shutdown. | `FRESH-PROCESS-AND-SHUTDOWN`. | `ce4a025` |
+| HNT-027 | Parallel browsers caused contention/ambiguous evidence. | Serialized suites. | `SERIAL-BROWSER-GATES`. | `ce4a025` |
+| HNT-028 | Resource exhaustion looked like product failure. | Added resource floors/preflight. | `RESOURCE-PREFLIGHT`. | `ce4a025` |
+| HNT-029 | Non-interactive shell missed toolchain paths. | Used explicit verified binaries. | `DETERMINISTIC-TOOLCHAIN`. | `ce4a025` |
+| HNT-030 | Local commit existed before remote auth/parity proof. | Verified authenticated push and remote tip. | `AUTHENTICATED-GIT-PREFLIGHT`. | `ce4a025` |
+| HNT-031 | Publisher commits made a built/deployed SHA stale. | Rebuilt final restored branch tip; post-cutover read-only. | `PUBLISHER-BEFORE-FINAL-SHA`. | `ce4a025` |
+| HNT-032 | Existing protected inputs risked being re-requested/mis-sourced. | Used the project secret map. | `PROJECT-SECRET-MAP`. | `ce4a025` |
+| HNT-033 | cPanel port could be appended twice. | Normalized endpoint once. | `CPANEL-ENDPOINT-NORMALIZATION`. | `ce4a025` |
+| HNT-034 | cPanel API array/object shapes broke root discovery. | Normalized responses and exact-domain selection. | `CPANEL-RESPONSE-NORMALIZATION`. | `ce4a025` |
+| HNT-035 | CDN IP was mistaken for origin proof. | Used authoritative vhost inventory and SNI tests. | `TRUE-ORIGIN-PROOF`. | `ce4a025` |
+| HNT-036 | Wrong island request shape produced false 404. | Used correct preview POST and validated payload/forms. | `AUTHENTICATED-ISLAND-POST`; harness-first diagnosis. | Launch #23; `ce4a025` |
+| HNT-037 | Noncanonical initial admin URL caused false auth failure. | Authenticated at canonical `/admin/`. | `CANONICAL-ADMIN-LOGIN`. | Launch #23; `ce4a025` |
+| HNT-038 | Runtime symlink depended on an older release. | Recorded/protected the owner release. | `SELF-CONTAINED-RUNTIME`. | `ce4a025` |
+| HNT-039 | Temporary deploy artifacts/jobs remained. | Removed them and rechecked health. | `RETENTION-CLEANUP`. | `ce4a025` |
+| HNT-040 | Truncated/unparsed logs were weak evidence. | Emitted parsed JSON and exits. | `STRUCTURED-EVIDENCE`. | `ce4a025` |
+| HNT-041 | Publisher proof lacked durable exact-restoration evidence. | Retained sanitized transaction artifacts. | `EVIDENCE-ARTIFACT`. | `ce4a025` |
+| HNT-042 | Out-of-order checks invalidated earlier proof. | Enforced one dependency-ordered sequence. | `CHECKPOINT-NOT-COMPLETION`. | `ce4a025` |
+| HNT-043 | Bad probes risked unnecessary product changes. | Fixed harness before product/assertions. | `MINIMAL-RETRY-DIAGNOSTICS`. | `ce4a025` |
+| HNT-044 | Approximate design differed from literal source. | Restored literal templates/assets. | `LITERAL-VISUAL-NON-APPROXIMATION`. | `ca65df7`, `dabaa37` |
+| HNT-045 | SHA/HTTP health was mistaken for visual proof. | Separated identity and visual gates. | `SHA-HTTP-NOT-VISUAL-PROOF`. | `aae7aca` |
+| HNT-046 | Cloud selected a different body hierarchy. | Fixed and declared source precedence. | `CLOUD-SOURCE-PRECEDENCE`. | `4b175f5` |
+| HNT-047 | In-motion smooth scroll gave invalid sticky measurements. | Used settled wheel steps/boundary. | `REAL-WHEEL-STICKY-PROOF`. | `dabaa37` |
+| HNT-048 | Desktop rail fixes could break compact TOC. | Locked each responsive mode separately. | `RESPONSIVE-RAIL-TOC-CONTRACT`. | `dabaa37` |
+| HNT-049 | Highlight-only review omitted template families. | Added complete family matrix. | `COMPLETE-TEMPLATE-FAMILY-MATRIX`. | `dabaa37` |
+| HNT-050 | Manifest allowed duplicate/escaped/symlinked/extra authority risks. | Added full integrity and containment checks. | `FIXTURE-INTEGRITY-FIRST`. | `369482e`, `ad6c7fa`, `c324082` |
+| HNT-051 | Dist-only scan missed archive/admin secrets. | Scanned dist, members and live JS. | `DUAL-ARTIFACT-SECRET-SCAN`. | `dff4174`, `945ca94` |
+| HNT-052 | Upload/short SHA did not prove release identity. | Reopened exact full-SHA archive and compared all pointers. | `EXACT-SHA-PACKAGE-POINTER-PARITY`. | `aae7aca` |
+| HNT-053 | Cleanup could invalidate a prior pass. | Repeated acceptance after cleanup. | `FINAL-POST-CLEANUP-ACCEPTANCE`. | `aae7aca` |
+| HNT-054 | Policy markers could pass without executable gates. | Added preflight, exact wiring and negative preflight. | `EXECUTABLE-LOCK-READINESS`. | `531166f`–`ef86629` |
+
+This ledger is append-only under the same supersession rule as GOLD. Documentation presence alone still does not pass any row.
+
 ## Executable acceptance
 
 Documentation presence is insufficient. The project must implement applicable checks in its source validator, demo-lock, controlled-negative suite, Tina/admin fullcheck, immutable packager/deployer and cleanup verification. The repository validator must reject a missing `ASTRO-DEMO-LOCK.md` or any missing mandatory control above.
