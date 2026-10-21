@@ -146,6 +146,16 @@ else {
     ['EVIDENCE-ARTIFACT', 'sanitized admin transaction evidence gate'],
     ['CHECKPOINT-NOT-COMPLETION', 'ordered end-to-end acceptance gate'],
     ['MINIMAL-RETRY-DIAGNOSTICS', 'diagnostic-harness-before-product-change gate'],
+    ['LITERAL-VISUAL-NON-APPROXIMATION', 'literal visual parity gate'],
+    ['SHA-HTTP-NOT-VISUAL-PROOF', 'identity is not visual proof gate'],
+    ['CLOUD-SOURCE-PRECEDENCE', 'Cloud source-precedence gate'],
+    ['REAL-WHEEL-STICKY-PROOF', 'settled real-wheel sticky gate'],
+    ['RESPONSIVE-RAIL-TOC-CONTRACT', 'desktop/mobile rail and TOC gate'],
+    ['COMPLETE-TEMPLATE-FAMILY-MATRIX', 'all-template-family coverage gate'],
+    ['FIXTURE-INTEGRITY-FIRST', 'immutable fixture integrity gate'],
+    ['DUAL-ARTIFACT-SECRET-SCAN', 'dist and archive secret-scan gate'],
+    ['EXACT-SHA-PACKAGE-POINTER-PARITY', 'exact immutable package and pointer parity gate'],
+    ['FINAL-POST-CLEANUP-ACCEPTANCE', 'post-cleanup acceptance gate'],
   ];
   for (const [needle, label] of requiredGates) {
     if (!processDocument.includes(needle)) fail(`TINA-MIGRATION-GOLD.md is missing the ${label}.`);
