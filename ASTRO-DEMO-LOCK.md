@@ -35,12 +35,13 @@ A build, SHA, `RELEASE_COMMIT`, HTTP `200`, screenshot taken at the wrong viewpo
 27. **SCOPED-GATE-NOT-ACCEPTANCE** — A collection-scoped Publisher run is diagnostic, must emit `SCOPED`, and cannot emit or substitute for the full-suite acceptance marker.
 28. **COMPLETE-DOCUMENT-RESTORATION** — Snapshot the complete authoritative document before mutation and compare the complete restored document, using byte hashes where source bytes are authoritative and normalized semantic hashes otherwise. One-field restoration is insufficient.
 29. **RESPONSIVE-NAVIGATION-INTERACTION-CONTRACT** — Prove 1024/1025 behavior, pointer and keyboard open, Escape/focus return, outside/link close, resize reset, ARIA, CMS links and overflow, plus one rejected toggle mutation.
-30. **FRONTEND-ROUTE-RESOLUTION** — Protect exact shortcut precedence and test permalink, `_sys`, document identity/hash, root/Home, encoded/nested path, aliases and unknown-input failure; display titles are not default route identity.
-31. **CANONICAL-ALIAS-PARITY** — Test every approved legacy alias against its one canonical destination and reject unrelated aliases.
-32. **DETERMINISTIC-ADMIN-LOCATORS** — Bind admin mutations to exact collection/document/field identity and an asserted baseline; mutable labels or incidental ordering cannot be the sole locator.
-33. **CATEGORY-ISLAND-EDITABILITY** — Require real Category query, exact variables, authoritative data, stable form ID and one primary form on canonical/editor routes; reject hollow HTTP-200 forms.
-34. **REPRESENTATION-SHAPE-MATRIX** — Execute object, string, absent and fallback data-shape cases against the same required wrapper/source-precedence contract and reject a deliberate wrapper mutation.
-35. **MANDATORY-RELEASE-COMMAND-SEQUENCE** — Repository validation must protect and release acceptance must execute the full Publisher, navigation, route/alias, preflight, positive lock and negative lock command chain; policy text alone cannot satisfy this control.
+30. **PRODUCTION-RUNTIME-DEPENDENCY-CLOSURE** — Every package imported by SSR, generated admin, startup or deployed runtime code belongs in production dependencies and must survive a frozen production-only install plus target-Node CMS-route startup.
+31. **FRONTEND-ROUTE-RESOLUTION** — Protect exact shortcut precedence and test permalink, `_sys`, document identity/hash, root/Home, encoded/nested path, aliases and unknown-input failure; display titles are not default route identity.
+32. **CANONICAL-ALIAS-PARITY** — Test every approved legacy alias against its one canonical destination and reject unrelated aliases.
+33. **DETERMINISTIC-ADMIN-LOCATORS** — Bind admin mutations to exact collection/document/field identity and an asserted baseline; mutable labels or incidental ordering cannot be the sole locator.
+34. **CATEGORY-ISLAND-EDITABILITY** — Require real Category query, exact variables, authoritative data, stable form ID and one primary form on canonical/editor routes; reject hollow HTTP-200 forms.
+35. **REPRESENTATION-SHAPE-MATRIX** — Execute object, string, absent and fallback data-shape cases against the same required wrapper/source-precedence contract and reject a deliberate wrapper mutation.
+36. **MANDATORY-RELEASE-COMMAND-SEQUENCE** — Repository validation must protect and release acceptance must execute the full Publisher, navigation, route/alias, preflight, positive lock and negative lock command chain; policy text alone cannot satisfy this control.
 
 ## Transport gates inherited from GOLD
 
