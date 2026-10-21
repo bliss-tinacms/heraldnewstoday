@@ -6,6 +6,7 @@ const cases = [
   { mutation: 'authority-manifest', expected: 'authority-manifest' },
   { mutation: 'positive-browser-validator', expected: 'positive-browser-validator' },
   { mutation: 'controlled-negative-suite', expected: 'controlled-negative-suite' },
+  { mutation: 'positive-command-target', expected: 'miswired-package-command:astro:demo-lock' },
 ];
 const results = [];
 for (const item of cases) {

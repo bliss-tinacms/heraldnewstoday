@@ -85,8 +85,17 @@ if (existsSync(packagePath)) {
   try { scripts = JSON.parse(readFileSync(packagePath, 'utf8')).scripts || {}; }
   catch (error) { failures.push(`invalid-package-json:${error.message}`); }
 }
+if (mutation === 'positive-command-target') scripts['astro:demo-lock'] = 'true';
 for (const command of ['astro:demo-lock', 'astro:demo-lock:negative', 'astro:demo-lock:preflight', 'astro:demo-lock:preflight:negative']) {
   if (!scripts[command]) missing.push(`package-command:${command}`);
+}
+for (const [command, expected] of Object.entries({
+  'astro:demo-lock': 'node scripts/validate-demo-lock.mjs',
+  'astro:demo-lock:negative': 'node scripts/test-demo-lock-negative.mjs',
+  'astro:demo-lock:preflight': 'node scripts/validate-demo-lock-preflight.mjs',
+  'astro:demo-lock:preflight:negative': 'node scripts/test-demo-lock-preflight-negative.mjs',
+})) {
+  if (scripts[command] && scripts[command] !== expected) failures.push(`miswired-package-command:${command}`);
 }
 if (scripts['astro:demo-lock']?.includes('validate-demo-lock-preflight')) failures.push('positive-command-points-only-to-preflight');
 if (scripts['astro:demo-lock:negative']?.includes('preflight')) failures.push('negative-command-points-only-to-preflight');

@@ -198,6 +198,12 @@ const packageJson = JSON.parse(read('package.json'));
 for (const command of ['site:provision', 'sanitize:generated', 'validate:starter', 'validate:site', 'tina:fullcheck', 'astro:demo-lock:preflight', 'astro:demo-lock:preflight:negative']) {
   if (!packageJson.scripts?.[command]) fail(`package.json is missing ${command}.`);
 }
+for (const [command, expected] of Object.entries({
+  'astro:demo-lock:preflight': 'node scripts/validate-demo-lock-preflight.mjs',
+  'astro:demo-lock:preflight:negative': 'node scripts/test-demo-lock-preflight-negative.mjs',
+})) {
+  if (packageJson.scripts?.[command] !== expected) fail(`package.json ${command} must equal ${expected}.`);
+}
 const astroConfig = read('astro.config.mjs');
 if (!/loadEnv\s*\(/.test(astroConfig) || !/configuredEnv\(['"]SITE_URL['"]\)/.test(astroConfig)) {
   fail('astro.config.mjs must load SITE_URL from the active .env mode before generating absolute URLs.');
