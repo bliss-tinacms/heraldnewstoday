@@ -15,6 +15,12 @@ const cases = [
   { mutation: 'home-process-style', expected: 'home-process-panel/desktop:borderRadius' },
   { mutation: 'home-team-card', expected: 'home-team-card/desktop:padding' },
   { mutation: 'footer-structure', expected: 'DOM contract .ft-cl>.ft-links' },
+  { mutation: 'about-dom', expected: 'about/desktop: missing .purpose-panel' },
+  { mutation: 'team-dom', expected: 'team/desktop: missing .staff-grid' },
+  { mutation: 'category-dom', expected: 'category/desktop: missing .category-archive' },
+  { mutation: 'author-dom', expected: 'author/desktop: missing .author-stories' },
+  { mutation: '404-dom', expected: '404/desktop: missing .not-found-panel' },
+  { mutation: 'page-wrapper-dom', expected: 'page/desktop: DOM contract .pg article>div count 0' },
 ];
 
 for (const item of cases) {

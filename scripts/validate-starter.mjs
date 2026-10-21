@@ -183,6 +183,16 @@ else {
     ['EXACT-SHA-PACKAGE-POINTER-PARITY', 'exact immutable package and pointer parity gate'],
     ['FINAL-POST-CLEANUP-ACCEPTANCE', 'post-cleanup acceptance gate'],
     ['EXECUTABLE-LOCK-READINESS', 'executable lock readiness gate'],
+    ['SCOPED-GATE-NOT-ACCEPTANCE', 'scoped Publisher non-acceptance gate'],
+    ['COMPLETE-DOCUMENT-RESTORATION', 'complete-document restoration gate'],
+    ['PRODUCTION-RUNTIME-DEPENDENCY-CLOSURE', 'production dependency closure gate'],
+    ['RESPONSIVE-NAVIGATION-INTERACTION-CONTRACT', 'responsive navigation interaction gate'],
+    ['FRONTEND-ROUTE-RESOLUTION', 'frontend route-resolution gate'],
+    ['CANONICAL-ALIAS-PARITY', 'canonical alias parity gate'],
+    ['DETERMINISTIC-ADMIN-LOCATORS', 'deterministic admin locator gate'],
+    ['CATEGORY-ISLAND-EDITABILITY', 'category island editability gate'],
+    ['REPRESENTATION-SHAPE-MATRIX', 'production representation-shape matrix gate'],
+    ['MANDATORY-RELEASE-COMMAND-SEQUENCE', 'mandatory release command sequence gate'],
   ];
   for (const [needle, label] of requiredGates) {
     if (!processDocument.includes(needle)) fail(`TINA-MIGRATION-GOLD.md is missing the ${label}.`);
@@ -202,6 +212,10 @@ else {
     'RESPONSIVE-RAIL-TOC-CONTRACT', 'COMPLETE-TEMPLATE-FAMILY-MATRIX', 'FIXTURE-INTEGRITY-FIRST',
     'DUAL-ARTIFACT-SECRET-SCAN', 'EXACT-SHA-PACKAGE-POINTER-PARITY', 'FINAL-POST-CLEANUP-ACCEPTANCE',
     'EXECUTABLE-LOCK-READINESS',
+    'SCOPED-GATE-NOT-ACCEPTANCE', 'COMPLETE-DOCUMENT-RESTORATION',
+    'RESPONSIVE-NAVIGATION-INTERACTION-CONTRACT', 'FRONTEND-ROUTE-RESOLUTION',
+    'CANONICAL-ALIAS-PARITY', 'DETERMINISTIC-ADMIN-LOCATORS', 'CATEGORY-ISLAND-EDITABILITY',
+    'REPRESENTATION-SHAPE-MATRIX', 'MANDATORY-RELEASE-COMMAND-SEQUENCE',
   ];
   for (const marker of requiredDemoControls) {
     if (!demoLock.includes(marker)) fail(`ASTRO-DEMO-LOCK.md is missing mandatory control ${marker}.`);
@@ -228,12 +242,19 @@ if (/^pnpm-lock\.yaml$/m.test(gitignore)) fail('pnpm-lock.yaml must be tracked.'
 if (!/^\.env$/m.test(gitignore) && !/^\.env\*$/m.test(gitignore)) fail('.env secrets must be ignored.');
 if (!/^site\.manifest\.json$/m.test(gitignore)) fail('Filled site.manifest.json files must be ignored.');
 const packageJson = JSON.parse(read('package.json'));
-for (const command of ['site:provision', 'sanitize:generated', 'validate:starter', 'validate:site', 'tina:fullcheck', 'astro:demo-lock:preflight', 'astro:demo-lock:preflight:negative']) {
+for (const command of ['site:provision', 'sanitize:generated', 'validate:starter', 'validate:site', 'tina:fullcheck', 'publisher:admin-gate', 'menu:verify', 'menu:verify:negative', 'test:frontend-route', 'test:route-aliases', 'astro:demo-lock:preflight', 'astro:demo-lock', 'astro:demo-lock:negative', 'astro:demo-lock:preflight:negative']) {
   if (!packageJson.scripts?.[command]) fail(`package.json is missing ${command}.`);
 }
 for (const [command, expected] of Object.entries({
   'astro:demo-lock:preflight': 'node scripts/validate-demo-lock-preflight.mjs',
   'astro:demo-lock:preflight:negative': 'node scripts/test-demo-lock-preflight-negative.mjs',
+  'publisher:admin-gate': 'node scripts/publisher-admin-gate.mjs',
+  'menu:verify': 'node scripts/verify-responsive-menu.mjs',
+  'menu:verify:negative': 'node scripts/test-responsive-menu-negative.mjs',
+  'test:frontend-route': 'node scripts/test-view-frontend-route.mjs',
+  'test:route-aliases': 'node scripts/test-route-aliases.mjs',
+  'astro:demo-lock': 'node scripts/validate-demo-lock.mjs',
+  'astro:demo-lock:negative': 'node scripts/test-demo-lock-negative.mjs',
 })) {
   if (packageJson.scripts?.[command] !== expected) fail(`package.json ${command} must equal ${expected}.`);
 }
@@ -249,6 +270,23 @@ for (const marker of ['LATEST-MIGRATION-INCIDENT-LEDGER', 'missing-incident-ledg
   if (!demoLockPreflight.includes(marker)) fail(`ASTRO-DEMO-LOCK preflight is missing incident-ledger enforcement marker ${marker}.`);
 }
 if (!demoLockPreflightNegative.includes('missing-incident-ledger-row')) fail('ASTRO-DEMO-LOCK negative suite is missing the incident-ledger row-removal mutation.');
+const publisherGate = read('scripts/publisher-admin-gate.mjs');
+for (const marker of ['PUBLISHER_ADMIN_GATE_SCOPED', 'originalDocumentHash', 'byte-exact complete-document restoration', 'unrelatedDrift', 'CATEGORY-ISLAND-EDITABILITY']) {
+  if (!publisherGate.includes(marker)) fail(`Publisher gate is missing enforced marker ${marker}.`);
+}
+const demoLockValidator = read('scripts/validate-demo-lock.mjs');
+const demoLockNegative = read('scripts/test-demo-lock-negative.mjs');
+for (const mutation of ['about-dom', 'team-dom', 'category-dom', 'author-dom', '404-dom', 'page-wrapper-dom']) {
+  if (!demoLockValidator.includes(mutation) || !demoLockNegative.includes(mutation)) fail(`Demo-lock positive/negative pair is missing family mutation ${mutation}.`);
+}
+const responsiveMenu = read('scripts/verify-responsive-menu.mjs');
+const responsiveMenuNegative = read('scripts/test-responsive-menu-negative.mjs');
+if (!responsiveMenu.includes('broken-aria-controls') || !responsiveMenuNegative.includes('broken-aria-controls')) fail('Responsive menu controlled-negative mutation is missing.');
+for (const dependency of ['react', 'react-dom', 'tinacms']) {
+  if (!packageJson.dependencies?.[dependency]) fail(`${dependency} must be a production dependency.`);
+}
+const pageTemplate = read('src/components/demo/DemoPageTemplate.astro');
+if (!/<article[^>]*>[\s\S]*?<div>[\s\S]*?typeof contentBlock\?\.body === ['"]string['"]/.test(pageTemplate)) fail('Cloud/string/fallback page body branches must remain inside one stable article wrapper.');
 const astroConfig = read('astro.config.mjs');
 if (!/loadEnv\s*\(/.test(astroConfig) || !/configuredEnv\(['"]SITE_URL['"]\)/.test(astroConfig)) {
   fail('astro.config.mjs must load SITE_URL from the active .env mode before generating absolute URLs.');

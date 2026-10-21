@@ -132,6 +132,12 @@ async function applyMutation(page, routeName) {
     'home-process-style': ['home', '.lock-process-panel', 'border-radius', '0px'],
     'home-team-card': ['home', '.lock-person', 'padding', '2px'],
     'footer-structure': ['home', '.ft .ft-links', 'remove'],
+    'about-dom': ['about', '.purpose-panel', 'remove'],
+    'team-dom': ['team', '.staff-grid', 'remove'],
+    'category-dom': ['category', '.category-archive', 'remove'],
+    'author-dom': ['author', '.author-stories', 'remove'],
+    '404-dom': ['404', '.not-found-panel', 'remove'],
+    'page-wrapper-dom': ['page', '.pg article>div', 'remove'],
   };
   const spec = mutations[mutation];
   if (!spec || spec[0] !== routeName) return;

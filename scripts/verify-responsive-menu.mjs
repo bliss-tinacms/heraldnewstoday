@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 
 const base = (process.env.TARGET_BASE || process.env.SITE_URL || 'http://127.0.0.1:4321').replace(/\/$/, '');
 const browser = await chromium.launch({ headless: true });
+const mutation = process.env.RESPONSIVE_MENU_MUTATION || '';
 const failures = [];
 const results = [];
 
@@ -54,6 +55,7 @@ for (const width of [1440, 1025]) {
 for (const width of [1024, 768, 390]) {
   const page = await browser.newPage({ viewport: { width, height: 900 } });
   const response = await page.goto(`${base}/?menu-proof=${width}-${Date.now()}`, { waitUntil: 'networkidle' });
+  if (mutation === 'broken-aria-controls') await page.locator('[data-menu-toggle]').evaluate((node) => node.setAttribute('aria-controls', 'broken-navigation'));
   const button = page.locator('[data-menu-toggle]');
   const nav = page.locator('#primary-navigation');
   const closed = await state(page);
