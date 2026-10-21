@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { chromium } from 'playwright';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readFileSync, statfsSync, unlinkSync, writeFileSync } from 'node:fs';
+import { freemem, totalmem } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import sharp from 'sharp';
 
@@ -13,6 +14,57 @@ const fixtureRoot = resolve(root, 'tests/fixtures/astro-demo-lock/authoritative'
 const failures = [];
 const passes = [];
 const visuals = [];
+const startedAt = new Date().toISOString();
+const executionMode = /^https:\/\//.test(base) ? 'live' : 'local-production';
+const runLock = '/tmp/astro-demo-lock-browser.lock';
+let ownsRunLock = false;
+
+function releaseRunLock() {
+  if (!ownsRunLock) return;
+  try { unlinkSync(runLock); } catch {}
+  ownsRunLock = false;
+}
+
+function acquireRunLock() {
+  const attempt = () => {
+    const fd = openSync(runLock, 'wx', 0o600);
+    writeFileSync(fd, JSON.stringify({ pid: process.pid, root, base, startedAt }));
+    closeSync(fd);
+    ownsRunLock = true;
+  };
+  try { attempt(); return; } catch (error) {
+    if (error?.code !== 'EEXIST') throw error;
+  }
+  let owner = null;
+  try { owner = JSON.parse(readFileSync(runLock, 'utf8')); } catch {}
+  let alive = false;
+  if (Number.isInteger(owner?.pid)) {
+    try { process.kill(owner.pid, 0); alive = true; } catch {}
+  }
+  if (alive) {
+    console.error(`ASTRO_DEMO_LOCK_BLOCKED concurrent browser gate pid=${owner.pid} target=${owner.base || 'unknown'}`);
+    process.exit(2);
+  }
+  try { unlinkSync(runLock); } catch {}
+  attempt();
+}
+
+acquireRunLock();
+process.on('exit', releaseRunLock);
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => { releaseRunLock(); process.exit(128 + (signal === 'SIGINT' ? 2 : 15)); });
+
+const resourceEvidence = {};
+for (const path of ['/', '/tmp', '/dev/shm']) {
+  const stats = statfsSync(path);
+  resourceEvidence[path] = Number(stats.bavail) * Number(stats.bsize);
+}
+resourceEvidence.freeMemory = freemem();
+resourceEvidence.totalMemory = totalmem();
+for (const path of ['/', '/tmp']) {
+  if (resourceEvidence[path] < 256 * 1024 * 1024) failures.push(`resource preflight: ${path} has less than 256 MiB free`);
+}
+if (resourceEvidence['/dev/shm'] < 32 * 1024 * 1024) failures.push('resource preflight: /dev/shm has less than 32 MiB free');
+if (resourceEvidence.freeMemory < 256 * 1024 * 1024) failures.push('resource preflight: less than 256 MiB memory available');
 
 function fail(message) { failures.push(message); }
 function pass(message) { passes.push(message); }
@@ -23,8 +75,10 @@ function near(actual, expected, tolerance, label) {
 
 // The authority cannot silently move with the implementation.
 const sumsPath = resolve(fixtureRoot, 'SHA256SUMS');
+let fixtureManifestSha256 = null;
 if (!existsSync(sumsPath)) fail('authority: missing SHA256SUMS');
 else {
+  fixtureManifestSha256 = createHash('sha256').update(readFileSync(sumsPath)).digest('hex');
   for (const line of readFileSync(sumsPath, 'utf8').trim().split('\n')) {
     const match = line.match(/^([a-f0-9]{64})\s+(.+)$/);
     if (!match) { fail(`authority: malformed checksum line ${line}`); continue; }
@@ -337,6 +391,21 @@ if (!fast) {
 for (const page of [...pages.values(), ...sourcePages.values()]) await page.close();
 await browser.close();
 
-console.log(JSON.stringify({ base, mutation: mutation || null, passes: passes.length, failures, visuals }, null, 2));
+console.log(JSON.stringify({
+  schema: 'astro-demo-lock-evidence-v2',
+  target: base,
+  mode: executionMode,
+  startedAt,
+  completedAt: new Date().toISOString(),
+  pid: process.pid,
+  mutation: mutation || null,
+  fast,
+  fixtureManifestSha256,
+  viewports,
+  resources: resourceEvidence,
+  passes: passes.length,
+  failures,
+  visuals,
+}, null, 2));
 if (failures.length) process.exit(1);
 console.log('ASTRO_DEMO_LOCK_OK true');

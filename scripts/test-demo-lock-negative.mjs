@@ -2,6 +2,8 @@
 import { spawnSync } from 'node:child_process';
 
 const base = process.env.TARGET_BASE || 'http://127.0.0.1:4406';
+const startedAt = new Date().toISOString();
+const results = [];
 const cases = [
   { mutation: 'contact-heading', expected: 'contact-heading/desktop:fontSize' },
   { mutation: 'article-sticky', expected: 'rail position static, expected sticky' },
@@ -37,6 +39,15 @@ for (const item of cases) {
     process.exit(1);
   }
   console.log(`NEGATIVE_TEST_PASS ${item.mutation}`);
+  results.push({ mutation: item.mutation, expected: item.expected, rejected: true });
 }
 
+console.log(JSON.stringify({
+  schema: 'astro-demo-lock-negative-evidence-v2',
+  target: base,
+  startedAt,
+  completedAt: new Date().toISOString(),
+  serial: true,
+  results,
+}, null, 2));
 console.log(`ASTRO_DEMO_LOCK_NEGATIVE_TESTS_OK ${cases.length}`);
