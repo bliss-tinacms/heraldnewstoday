@@ -158,6 +158,7 @@ else {
     ['DUAL-ARTIFACT-SECRET-SCAN', 'dist and archive secret-scan gate'],
     ['EXACT-SHA-PACKAGE-POINTER-PARITY', 'exact immutable package and pointer parity gate'],
     ['FINAL-POST-CLEANUP-ACCEPTANCE', 'post-cleanup acceptance gate'],
+    ['EXECUTABLE-LOCK-READINESS', 'executable lock readiness gate'],
   ];
   for (const [needle, label] of requiredGates) {
     if (!processDocument.includes(needle)) fail(`TINA-MIGRATION-GOLD.md is missing the ${label}.`);
