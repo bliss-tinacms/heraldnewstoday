@@ -31,6 +31,7 @@ A build, SHA, `RELEASE_COMMIT`, HTTP `200`, screenshot taken at the wrong viewpo
 23. **DUAL-ARTIFACT-SECRET-SCAN** — After the final Tina command and sanitization, scan both completed `dist/` and the exact release archive for protected values, generated credentials, machine paths and `.env` inclusion.
 24. **EXACT-SHA-PACKAGE-POINTER-PARITY** — Package from exact full `HEAD`, embed it in `RELEASE_COMMIT`, reopen the archive, and require equality across local HEAD, remote tip, archive marker, physical release and active pointer.
 25. **FINAL-POST-CLEANUP-ACCEPTANCE** — After cleanup, rerun route/asset health, pointer/rollback/runtime dependency proof, canonical admin shell and required read-only live lock checks. Final reporting must use this state.
+26. **EXECUTABLE-LOCK-READINESS** — Policy markers alone cannot pass this lock. Require validator-enforced executable preflight and controlled-negative preflight, all lock controls, a complete no-extra-file SHA-256 authority manifest, a real positive browser validator, a controlled-negative browser suite and real positive/negative lock commands. Missing authority or browser gates is machine-readable `BLOCKED` with exit `2`; never derive authority from the destination or point the positive lock command only at preflight.
 
 ## Transport gates inherited from GOLD
 
