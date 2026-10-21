@@ -185,6 +185,14 @@ else {
   for (const marker of requiredDemoControls) {
     if (!demoLock.includes(marker)) fail(`ASTRO-DEMO-LOCK.md is missing mandatory control ${marker}.`);
   }
+  for (const [needle, label] of [
+    ['unique normalized manifest paths', 'unique normalized fixture-manifest paths'],
+    ['symlinked authority roots, manifests, fixture files or directories', 'symlinked authority rejection'],
+    ['segment-safe lexical containment plus realpath containment', 'fixture authority containment'],
+    ['reject every unmanifested file', 'complete fixture-corpus enumeration'],
+  ]) {
+    if (!demoLock.includes(needle)) fail(`ASTRO-DEMO-LOCK.md is missing ${label}.`);
+  }
   for (const marker of ['AUTHENTICATED-GIT-PREFLIGHT', 'PROJECT-SECRET-MAP', 'CPANEL-ENDPOINT-NORMALIZATION', 'CPANEL-RESPONSE-NORMALIZATION']) {
     if (!demoLock.includes(marker)) fail(`ASTRO-DEMO-LOCK.md is missing inherited GOLD blocker ${marker}.`);
   }
