@@ -7,7 +7,7 @@ const strictRuntime = process.argv.includes('--runtime');
 const failures = [];
 const fail = (message) => failures.push(message);
 const read = (path) => readFileSync(join(root, path), 'utf8');
-const incidentIds = Array.from({ length: 54 }, (_, index) => `HNT-${String(index + 1).padStart(3, '0')}`);
+const incidentIds = Array.from({ length: 65 }, (_, index) => `HNT-${String(index + 1).padStart(3, '0')}`);
 
 function validateIncidentLedger(document, label) {
   if (!document.includes('LATEST-MIGRATION-INCIDENT-LEDGER')) fail(`${label} is missing the latest-migration incident ledger.`);
@@ -266,12 +266,12 @@ for (const marker of ['duplicate-manifest-path', 'non-normalized-manifest-path',
 for (const mutation of ['duplicate-manifest-path', 'non-normalized-manifest-path', 'fixture-hash-drift', 'unmanifested-fixture', 'fixture-symlink']) {
   if (!demoLockPreflightNegative.includes(mutation)) fail(`ASTRO-DEMO-LOCK negative suite is missing fixture-integrity mutation ${mutation}.`);
 }
-for (const marker of ['LATEST-MIGRATION-INCIDENT-LEDGER', 'missing-incident-ledger-row', 'length: 54']) {
+for (const marker of ['LATEST-MIGRATION-INCIDENT-LEDGER', 'missing-incident-ledger-row', 'length: 65']) {
   if (!demoLockPreflight.includes(marker)) fail(`ASTRO-DEMO-LOCK preflight is missing incident-ledger enforcement marker ${marker}.`);
 }
 if (!demoLockPreflightNegative.includes('missing-incident-ledger-row')) fail('ASTRO-DEMO-LOCK negative suite is missing the incident-ledger row-removal mutation.');
 const publisherGate = read('scripts/publisher-admin-gate.mjs');
-for (const marker of ['PUBLISHER_ADMIN_GATE_SCOPED', 'originalDocumentHash', 'byte-exact complete-document restoration', 'unrelatedDrift', 'CATEGORY-ISLAND-EDITABILITY']) {
+for (const marker of ['PUBLISHER_ADMIN_GATE_SCOPED', 'originalDocumentHash', 'byte-exact complete-document restoration', 'unrelatedDrift', 'CATEGORY-ISLAND-EDITABILITY', 'evidencePath', '.hermes/evidence/publisher-admin-gate-latest.json']) {
   if (!publisherGate.includes(marker)) fail(`Publisher gate is missing enforced marker ${marker}.`);
 }
 const demoLockValidator = read('scripts/validate-demo-lock.mjs');

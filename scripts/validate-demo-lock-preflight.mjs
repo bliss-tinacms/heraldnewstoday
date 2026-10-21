@@ -25,7 +25,7 @@ const requiredControls = [
   'DETERMINISTIC-ADMIN-LOCATORS', 'CATEGORY-ISLAND-EDITABILITY', 'REPRESENTATION-SHAPE-MATRIX',
   'MANDATORY-RELEASE-COMMAND-SEQUENCE',
 ];
-const incidentIds = Array.from({ length: 54 }, (_, index) => `HNT-${String(index + 1).padStart(3, '0')}`);
+const incidentIds = Array.from({ length: 65 }, (_, index) => `HNT-${String(index + 1).padStart(3, '0')}`);
 const missing = [];
 const failures = [];
 const passes = [];

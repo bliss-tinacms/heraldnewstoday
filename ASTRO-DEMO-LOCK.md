@@ -106,6 +106,17 @@ The complete `HNT-001` through `HNT-054` problem → solution → prevention →
 | HNT-052 | Upload/short SHA did not prove release identity. | Reopened exact full-SHA archive and compared all pointers. | `EXACT-SHA-PACKAGE-POINTER-PARITY`. | `aae7aca` |
 | HNT-053 | Cleanup could invalidate a prior pass. | Repeated acceptance after cleanup. | `FINAL-POST-CLEANUP-ACCEPTANCE`. | `aae7aca` |
 | HNT-054 | Policy markers could pass without executable gates. | Added preflight, exact wiring and negative preflight. | `EXECUTABLE-LOCK-READINESS`. | `531166f`–`ef86629` |
+| HNT-055 | Scoped Publisher runs emitted the full-success marker. | Added validated scope handling and a distinct scoped result. | `SCOPED-GATE-NOT-ACCEPTANCE`. | `e3af2ef`; delayed audit |
+| HNT-056 | `grep -q` plus `pipefail` made archive verification exit 141 on tar SIGPIPE. | Parsed archive members directly. | Direct archive parsing with preserved exits. | Launch #23 packaging evidence |
+| HNT-057 | cPanel pointer rename used `dest` instead of `destination`. | Used the documented parameter and verified API status/pointers. | Exact API schema and response validation. | Launch #23 cutover evidence |
+| HNT-058 | UAPI could not create Passenger `tmp/restart.txt`. | Extracted a bounded restart-marker archive via API2. | Tested fallback plus live fingerprint proof. | Launch #23 restart evidence |
+| HNT-059 | Default `urllib` polling reported errors while browser-like curl returned 200. | Rechecked headers, client and release fingerprint. | Client-fingerprint disagreement is diagnostic, not product failure. | Launch #23 activation evidence |
+| HNT-060 | Default `urllib` received 403 fetching the live admin asset. | Resolved the live hashed entry and fetched with browser headers. | Browser-equivalent live-asset secret scan. | Launch #23 admin-scan evidence |
+| HNT-061 | A `/tmp` Playwright ESM helper could not resolve project dependencies. | Executed it inside the package tree and cleaned it. | Project-importing helpers run under the package tree. | Resume session |
+| HNT-062 | Author/Category islands returned hollow HTTP-200 forms. | Required real query, variables, authoritative data and form identity. | Full island payload contract for both collections. | `8eb3a7c`; Launch #23 |
+| HNT-063 | Fullcheck could omit a configured collection and stay green. | Enforced schema/test-map equality and omission-negative failure. | Coverage equality plus negative proof. | Resume session |
+| HNT-064 | One mismatched doc hunk cancelled valid code hunks in a combined patch. | Reapplied small independently verified patches. | Multi-file atomic patches require exact pre-read hunks. | Resume session |
+| HNT-065 | Non-authoritative fonts allowed fallback typography. | Self-hosted exact Plus Jakarta Sans assets. | Pinned/checksummed fonts plus computed-metric proof. | `ca65df7` |
 
 This ledger is append-only under the same supersession rule as GOLD. Documentation presence alone still does not pass any row.
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { chromium } from 'playwright';
 import { createHash } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname } from 'node:path';
 
 const SITE = (process.env.SITE_URL || 'https://www.heraldnewstoday.com').replace(/\/$/, '');
 const ADMIN = `${SITE}/admin/`;
@@ -205,7 +207,11 @@ try {
     }
   }
   const status = scopedRun ? 'SCOPED' : 'PASS';
-  console.log(JSON.stringify({ site: SITE, account: 'Publisher', adminAccessVerified: true, marker, status, configuredCollections: allCases.map(item => item.name), executedCollections: results.map(item => item.collection), collections: results, failures: [] }, null, 2));
+  const report = { site: SITE, account: 'Publisher', adminAccessVerified: true, marker, status, configuredCollections: allCases.map(item => item.name), executedCollections: results.map(item => item.collection), collections: results, failures: [] };
+  const evidencePath = process.env.PUBLISHER_GATE_EVIDENCE_PATH || '.hermes/evidence/publisher-admin-gate-latest.json';
+  await mkdir(dirname(evidencePath), { recursive: true });
+  await writeFile(evidencePath, `${JSON.stringify(report, null, 2)}\n`, { mode: 0o600 });
+  console.log(JSON.stringify({ ...report, evidencePath }, null, 2));
   console.log(scopedRun ? 'PUBLISHER_ADMIN_GATE_SCOPED true' : 'PUBLISHER_ADMIN_GATE_OK true');
 } finally {
   await browser.close();
