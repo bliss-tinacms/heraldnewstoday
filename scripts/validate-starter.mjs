@@ -103,6 +103,8 @@ if (!existsSync(join(root, 'scripts/provision-site.mjs'))) fail('scripts/provisi
 if (!existsSync(join(root, 'site.manifest.example.json'))) fail('site.manifest.example.json is required for repeatable site provisioning.');
 if (!existsSync(join(root, 'scripts/tina-build-safe.mjs'))) fail('scripts/tina-build-safe.mjs is required for direct Cloud schema checks and secret-safe generation.');
 if (!existsSync(join(root, 'scripts/sanitize-generated-client.mjs'))) fail('scripts/sanitize-generated-client.mjs is required to keep generated credentials out of source control.');
+if (!existsSync(join(root, 'scripts/validate-demo-lock-preflight.mjs'))) fail('scripts/validate-demo-lock-preflight.mjs is required for fail-closed ASTRO-DEMO-LOCK readiness.');
+if (!existsSync(join(root, 'scripts/test-demo-lock-preflight-negative.mjs'))) fail('scripts/test-demo-lock-preflight-negative.mjs is required to prove ASTRO-DEMO-LOCK preflight rejection.');
 if (!existsSync(join(root, 'TINA-MIGRATION-GOLD.md'))) fail('TINA-MIGRATION-GOLD.md is required as the canonical migration and acceptance process.');
 else {
   const processDocument = read('TINA-MIGRATION-GOLD.md');
@@ -191,7 +193,7 @@ if (/^pnpm-lock\.yaml$/m.test(gitignore)) fail('pnpm-lock.yaml must be tracked.'
 if (!/^\.env$/m.test(gitignore) && !/^\.env\*$/m.test(gitignore)) fail('.env secrets must be ignored.');
 if (!/^site\.manifest\.json$/m.test(gitignore)) fail('Filled site.manifest.json files must be ignored.');
 const packageJson = JSON.parse(read('package.json'));
-for (const command of ['site:provision', 'sanitize:generated', 'validate:starter', 'validate:site', 'tina:fullcheck']) {
+for (const command of ['site:provision', 'sanitize:generated', 'validate:starter', 'validate:site', 'tina:fullcheck', 'astro:demo-lock:preflight', 'astro:demo-lock:preflight:negative']) {
   if (!packageJson.scripts?.[command]) fail(`package.json is missing ${command}.`);
 }
 const astroConfig = read('astro.config.mjs');

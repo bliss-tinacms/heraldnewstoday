@@ -26,7 +26,9 @@
     "astro:demo-lock:negative": "node scripts/test-demo-lock-negative.mjs",
     "publisher:admin-gate": "node scripts/publisher-admin-gate.mjs",
     "menu:verify": "node scripts/verify-responsive-menu.mjs",
-    "visual:capture": "node scripts/capture-demo-lock.mjs"
+    "visual:capture": "node scripts/capture-demo-lock.mjs",
+    "astro:demo-lock:preflight": "node scripts/validate-demo-lock-preflight.mjs",
+    "astro:demo-lock:preflight:negative": "node scripts/test-demo-lock-preflight-negative.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.7.0",
