@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const cases = [
   { mutation: 'missing-control', expected: 'missing-control:NO-PREMATURE-COMPLETION' },
@@ -7,6 +9,13 @@ const cases = [
   { mutation: 'positive-browser-validator', expected: 'positive-browser-validator' },
   { mutation: 'controlled-negative-suite', expected: 'controlled-negative-suite' },
   { mutation: 'positive-command-target', expected: 'miswired-package-command:astro:demo-lock' },
+  ...(existsSync(resolve(process.cwd(), 'tests/fixtures/astro-demo-lock/authoritative/SHA256SUMS')) ? [
+    { mutation: 'duplicate-manifest-path', expected: 'duplicate-manifest-path:' },
+    { mutation: 'non-normalized-manifest-path', expected: 'non-normalized-manifest-path:' },
+    { mutation: 'fixture-hash-drift', expected: 'fixture-hash-drift:' },
+    { mutation: 'unmanifested-fixture', expected: 'unmanifested-fixture:' },
+    { mutation: 'fixture-symlink', expected: 'fixture-symlink:' },
+  ] : []),
 ];
 const results = [];
 for (const item of cases) {

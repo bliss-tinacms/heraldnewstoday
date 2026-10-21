@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { dirname, relative, resolve } from 'node:path';
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 
 const root = resolve(dirname(new URL(import.meta.url).pathname), '..');
 const mutation = process.env.DEMO_LOCK_PREFLIGHT_MUTATION || '';
+const isInside = (parent, child) => {
+  const rel = relative(parent, child);
+  return Boolean(rel) && rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel);
+};
 const fixtureRoot = resolve(root, 'tests/fixtures/astro-demo-lock/authoritative');
 const manifestPath = resolve(fixtureRoot, 'SHA256SUMS');
 const requiredControls = [
@@ -60,21 +64,41 @@ if (existsSync(lockPath)) {
 let fixtureManifestSha256 = null;
 let checkedFixtures = 0;
 if (existsSync(manifestPath) && mutation !== 'authority-manifest') {
+  if (lstatSync(fixtureRoot).isSymbolicLink()) failures.push('symlink-authority-root');
+  if (lstatSync(manifestPath).isSymbolicLink()) failures.push('symlink-authority-manifest');
+  const fixtureRootReal = realpathSync(fixtureRoot);
   fixtureManifestSha256 = sha256(manifestPath);
   const expectedPaths = new Set();
-  for (const line of readFileSync(manifestPath, 'utf8').trim().split('\n').filter(Boolean)) {
+  let manifestLines = readFileSync(manifestPath, 'utf8').trim().split('\n').filter(Boolean);
+  if (mutation === 'duplicate-manifest-path' && manifestLines[0]) manifestLines = [...manifestLines, manifestLines[0]];
+  if (mutation === 'fixture-hash-drift' && manifestLines[0]) manifestLines[0] = manifestLines[0].replace(/^[a-f0-9]{64}/, '0'.repeat(64));
+  if (mutation === 'non-normalized-manifest-path' && manifestLines[0]) {
+    manifestLines[0] = manifestLines[0].replace(/\s+(.+)$/, (_, listed) => `  ${listed.replace(/^tests\/fixtures\//, 'tests/fixtures/../fixtures/')}`);
+  }
+  let manifestEntryIndex = 0;
+  for (const line of manifestLines) {
     const match = line.match(/^([a-f0-9]{64})\s+(.+)$/);
     if (!match) { failures.push(`malformed-manifest-line:${line}`); continue; }
     const [, expected, listed] = match;
     const file = resolve(root, listed);
-    if (!file.startsWith(`${fixtureRoot}/`)) { failures.push(`fixture-outside-authority:${listed}`); continue; }
+    if (!isInside(fixtureRoot, file)) { failures.push(`fixture-outside-authority:${listed}`); continue; }
+    const normalizedListed = relative(root, file).replaceAll('\\', '/');
+    if (listed !== normalizedListed) { failures.push(`non-normalized-manifest-path:${listed}`); continue; }
+    if (expectedPaths.has(file)) { failures.push(`duplicate-manifest-path:${listed}`); continue; }
     expectedPaths.add(file);
     if (!existsSync(file) || !statSync(file).isFile()) { failures.push(`missing-fixture:${listed}`); continue; }
+    const forceSymlink = mutation === 'fixture-symlink' && manifestEntryIndex === 0;
+    manifestEntryIndex += 1;
+    if (forceSymlink || lstatSync(file).isSymbolicLink()) { failures.push(`fixture-symlink:${listed}`); continue; }
+    const realFile = realpathSync(file);
+    if (!isInside(fixtureRootReal, realFile)) { failures.push(`fixture-realpath-outside-authority:${listed}`); continue; }
     if (sha256(file) !== expected) failures.push(`fixture-hash-drift:${listed}`);
     else checkedFixtures += 1;
   }
+  if (mutation === 'unmanifested-fixture' && expectedPaths.size) expectedPaths.delete(expectedPaths.values().next().value);
   for (const file of walkFiles(fixtureRoot)) {
     if (file === manifestPath) continue;
+    if (lstatSync(file).isSymbolicLink()) failures.push(`fixture-symlink:${relative(root, file)}`);
     if (!expectedPaths.has(file)) failures.push(`unmanifested-fixture:${relative(root, file)}`);
   }
   if (expectedPaths.size === 0) failures.push('empty-authority-manifest');

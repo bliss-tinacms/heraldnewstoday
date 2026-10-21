@@ -204,6 +204,14 @@ for (const [command, expected] of Object.entries({
 })) {
   if (packageJson.scripts?.[command] !== expected) fail(`package.json ${command} must equal ${expected}.`);
 }
+const demoLockPreflight = read('scripts/validate-demo-lock-preflight.mjs');
+const demoLockPreflightNegative = read('scripts/test-demo-lock-preflight-negative.mjs');
+for (const marker of ['duplicate-manifest-path', 'non-normalized-manifest-path', 'fixture-hash-drift', 'unmanifested-fixture', 'fixture-symlink', 'fixture-realpath-outside-authority']) {
+  if (!demoLockPreflight.includes(marker)) fail(`ASTRO-DEMO-LOCK preflight is missing fixture-integrity marker ${marker}.`);
+}
+for (const mutation of ['duplicate-manifest-path', 'non-normalized-manifest-path', 'fixture-hash-drift', 'unmanifested-fixture', 'fixture-symlink']) {
+  if (!demoLockPreflightNegative.includes(mutation)) fail(`ASTRO-DEMO-LOCK negative suite is missing fixture-integrity mutation ${mutation}.`);
+}
 const astroConfig = read('astro.config.mjs');
 if (!/loadEnv\s*\(/.test(astroConfig) || !/configuredEnv\(['"]SITE_URL['"]\)/.test(astroConfig)) {
   fail('astro.config.mjs must load SITE_URL from the active .env mode before generating absolute URLs.');
