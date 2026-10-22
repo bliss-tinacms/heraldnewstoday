@@ -43,6 +43,8 @@ A build, SHA, `RELEASE_COMMIT`, HTTP `200`, screenshot taken at the wrong viewpo
 35. **REPRESENTATION-SHAPE-MATRIX** — Execute object, string, absent and fallback data-shape cases against the same required wrapper/source-precedence contract and reject a deliberate wrapper mutation.
 36. **MANDATORY-RELEASE-COMMAND-SEQUENCE** — Repository validation must protect and release acceptance must execute the full Publisher, navigation, route/alias, preflight, positive lock and negative lock command chain; policy text alone cannot satisfy this control.
 
+38. **DEMO-CARDINALITY-MULTICAT-EXCEPTION** — `MULTICAT-LOCK` outranks `ASTRO-DEMO-LOCK` cardinality. The demo category count never controls frontend cardinality. A demo showing one category locks one repeated badge's structure, classes, styling, geometry and responsive treatment, not the number of rendered badges. Repeat the demo category badge once for every saved category in exact backend order. The Tina category array controls count, order, labels, slugs and hrefs. This required repetition is not a DOM/source-parity violation. `ASTRO-DEMO-LOCK` may never justify `categories[0]`, `primaryCategory`, `.find(...)`, `.slice(0, 1)`, hidden remainder categories or discarded links. Require a two-or-more-category fixture and exact backend/public tuple proof.
+
 ## Transport gates inherited from GOLD
 
 `AUTHENTICATED-GIT-PREFLIGHT`, `PROJECT-SECRET-MAP`, `CPANEL-ENDPOINT-NORMALIZATION` and `CPANEL-RESPONSE-NORMALIZATION` remain transport controls in `TINA-MIGRATION-GOLD.md`. If any prevents live proof, this lock is `BLOCKED`.
